@@ -2,15 +2,17 @@ export function detectRemix(pageData) {
   const evidence = [];
 
   const hasRemixContext = pageData.dom.html.includes("__remixContext");
+  const hasRemixScripts = pageData.scripts.content?.some((content) => content.includes("remixRouteModules") || content.includes("createBrowserRouter") || content.includes("entry.client"));
+  const hasRemixDataAttrs = pageData.dom.html.includes("data-remix");
+  const hasRemixInScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("remix"));
 
   if (hasRemixContext) {
     evidence.push({
       type: "strong",
+      decisive: true,
       message: "Found Remix runtime context",
     });
   }
-
-  const hasRemixScripts = pageData.scripts.content?.some((content) => content.includes("remixRouteModules") || content.includes("createBrowserRouter") || content.includes("entry.client"));
 
   if (hasRemixScripts) {
     evidence.push({
@@ -19,16 +21,12 @@ export function detectRemix(pageData) {
     });
   }
 
-  const hasRemixDataAttrs = pageData.dom.html.includes("data-remix");
-
   if (hasRemixDataAttrs) {
     evidence.push({
       type: "medium",
       message: "Found Remix data attributes",
     });
   }
-
-  const hasRemixInScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("remix"));
 
   if (hasRemixInScripts) {
     evidence.push({

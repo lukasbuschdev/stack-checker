@@ -2,8 +2,11 @@ export function detectWordPress(pageData) {
   const evidence = [];
 
   const html = pageData.dom.html;
-
   const hasWpContent = html.includes("/wp-content/") || html.includes("/wp-includes/");
+  const hasWpMeta = (pageData.meta.generator || "").toLowerCase().includes("wordpress");
+  const hasWpJson = html.includes("/wp-json/");
+  const hasWpScripts = pageData.scripts.srcList.some((src) => src.includes("wp-content") || src.includes("wp-includes"));
+  const hasWpGlobals = !!window.wp;
 
   if (hasWpContent) {
     evidence.push({
@@ -12,16 +15,13 @@ export function detectWordPress(pageData) {
     });
   }
 
-  const hasWpMeta = (pageData.meta.generator || "").toLowerCase().includes("wordpress");
-
   if (hasWpMeta) {
     evidence.push({
       type: "strong",
+      decisive: true,
       message: "Found WordPress generator meta tag",
     });
   }
-
-  const hasWpJson = html.includes("/wp-json/");
 
   if (hasWpJson) {
     evidence.push({
@@ -30,16 +30,12 @@ export function detectWordPress(pageData) {
     });
   }
 
-  const hasWpScripts = pageData.scripts.srcList.some((src) => src.includes("wp-content") || src.includes("wp-includes"));
-
   if (hasWpScripts) {
     evidence.push({
       type: "strong",
       message: "Found WordPress script paths",
     });
   }
-
-  const hasWpGlobals = !!window.wp;
 
   if (hasWpGlobals) {
     evidence.push({

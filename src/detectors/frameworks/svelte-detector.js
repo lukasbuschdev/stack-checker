@@ -2,6 +2,10 @@ export function detectSvelte(pageData) {
   const evidence = [];
 
   const hasSvelteInternals = pageData.dom.html.includes("__svelte") || pageData.dom.html.includes("svelte-");
+  const hasSvelteAttributes = pageData.dom.html.includes("data-svelte") || pageData.dom.html.includes("data-sveltekit");
+  const hasSvelteKit = pageData.dom.html.includes("__SVELTEKIT_DATA__") || pageData.dom.html.includes("sveltekit:");
+  const hasSvelteRuntime = pageData.scripts.content?.some((content) => content.includes("create_component") || content.includes("mount_component"));
+  const hasSvelteInScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("svelte"));
 
   if (hasSvelteInternals) {
     evidence.push({
@@ -10,8 +14,6 @@ export function detectSvelte(pageData) {
     });
   }
 
-  const hasSvelteAttributes = pageData.dom.html.includes("data-svelte") || pageData.dom.html.includes("data-sveltekit");
-
   if (hasSvelteAttributes) {
     evidence.push({
       type: "strong",
@@ -19,16 +21,13 @@ export function detectSvelte(pageData) {
     });
   }
 
-  const hasSvelteKit = pageData.dom.html.includes("__SVELTEKIT_DATA__") || pageData.dom.html.includes("sveltekit:");
-
   if (hasSvelteKit) {
     evidence.push({
       type: "strong",
+      decisive: true,
       message: "Found SvelteKit",
     });
   }
-
-  const hasSvelteRuntime = pageData.scripts.content?.some((content) => content.includes("create_component") || content.includes("mount_component"));
 
   if (hasSvelteRuntime) {
     evidence.push({
@@ -36,8 +35,6 @@ export function detectSvelte(pageData) {
       message: "Found Svelte runtime patterns",
     });
   }
-
-  const hasSvelteInScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("svelte"));
 
   if (hasSvelteInScripts) {
     evidence.push({

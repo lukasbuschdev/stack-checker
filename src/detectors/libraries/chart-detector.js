@@ -2,9 +2,7 @@ export function detectChartJS(pageData) {
   const evidence = [];
 
   const hasChartGlobal = typeof window.Chart !== "undefined" && typeof window.Chart === "function";
-
   const hasChartRuntime = pageData.scripts.content?.some((content) => content.includes("new Chart(") && content.includes("type:"));
-
   const hasChartScript = pageData.scripts.srcList.some((src) => /chart(\.min)?\.js/i.test(src));
 
   if (hasChartGlobal && hasChartRuntime) {

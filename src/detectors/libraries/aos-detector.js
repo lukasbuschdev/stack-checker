@@ -2,13 +2,9 @@ export function detectAOS(pageData) {
   const evidence = [];
 
   const html = pageData.dom.html;
-
   const aosElements = (html.match(/data-aos=/g) || []).length;
-
   const hasMultipleAOSAttributes = aosElements >= 3;
-
   const hasAOSRuntime = pageData.scripts.content?.some((content) => content.includes("AOS.init("));
-
   const hasAOSScript = pageData.scripts.srcList.some((src) => /\/aos(\.min)?\.js/i.test(src));
 
   if (hasMultipleAOSAttributes && hasAOSRuntime) {

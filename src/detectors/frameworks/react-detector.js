@@ -2,20 +2,16 @@ export function detectReact(pageData) {
   const evidence = [];
 
   const html = pageData.dom.html;
-
   const hasDevtoolsHook = pageData.globals.hasReactDevtoolsHook;
-
   const hasFiberMarkers = html.includes("__reactFiber") || html.includes("__reactProps") || html.includes("__reactContainer");
-
   const hasReactRootAPI = pageData.scripts.content?.some((content) => content.includes("createRoot(") || content.includes("hydrateRoot("));
-
   const hasLegacyReactDOM = html.includes("data-reactroot") || html.includes("data-reactid");
-
   const hasReactScript = pageData.scripts.srcList.some((src) => /react(-dom)?(\.production|\.development)?(\.min)?\.js/i.test(src));
 
   if (hasDevtoolsHook) {
     evidence.push({
       type: "strong",
+      decisive: true,
       message: "Found React DevTools hook",
     });
   }

@@ -2,15 +2,18 @@ export function detectPreact(pageData) {
   const evidence = [];
 
   const hasPreactDevtools = !!window.__PREACT_DEVTOOLS__;
+  const hasPreactGlobal = pageData.dom.html.includes("window.preact");
+  const hasPreactScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("preact"));
+  const hasPreactInternals = pageData.dom.html.includes("__k") || pageData.dom.html.includes("__e") || pageData.dom.html.includes("__d");
+  const hasPreactRuntime = pageData.scripts.content?.some((content) => content.includes("preact") || content.includes("h("));
 
   if (hasPreactDevtools) {
     evidence.push({
       type: "strong",
+      decisive: true,
       message: "Found Preact DevTools hook",
     });
   }
-
-  const hasPreactGlobal = pageData.dom.html.includes("window.preact");
 
   if (hasPreactGlobal) {
     evidence.push({
@@ -19,8 +22,6 @@ export function detectPreact(pageData) {
     });
   }
 
-  const hasPreactScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("preact"));
-
   if (hasPreactScripts) {
     evidence.push({
       type: "medium",
@@ -28,16 +29,12 @@ export function detectPreact(pageData) {
     });
   }
 
-  const hasPreactInternals = pageData.dom.html.includes("__k") || pageData.dom.html.includes("__e") || pageData.dom.html.includes("__d");
-
   if (hasPreactInternals) {
     evidence.push({
       type: "weak",
       message: "Found possible Preact VDOM internals",
     });
   }
-
-  const hasPreactRuntime = pageData.scripts.content?.some((content) => content.includes("preact") || content.includes("h("));
 
   if (hasPreactRuntime) {
     evidence.push({

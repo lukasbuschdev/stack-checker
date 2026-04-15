@@ -2,8 +2,9 @@ export function detectWix(pageData) {
   const evidence = [];
 
   const html = pageData.dom.html;
-
   const hasWixCDN = html.includes("wixstatic.com");
+  const hasWixGlobal = !!window.wix || html.includes("wix-code");
+  const hasWixScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("wix"));
 
   if (hasWixCDN) {
     evidence.push({
@@ -12,16 +13,12 @@ export function detectWix(pageData) {
     });
   }
 
-  const hasWixGlobal = !!window.wix || html.includes("wix-code");
-
   if (hasWixGlobal) {
     evidence.push({
       type: "medium",
       message: "Found Wix runtime",
     });
   }
-
-  const hasWixScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("wix"));
 
   if (hasWixScripts) {
     evidence.push({

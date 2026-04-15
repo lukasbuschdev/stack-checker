@@ -1,9 +1,12 @@
 export function detectAstro(pageData) {
   const evidence = [];
 
+  const hasAstroInScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("astro"));
+
   if (pageData.meta.hasAstroGenerator) {
     evidence.push({
       type: "strong",
+      decisive: true,
       message: "Found Astro generator meta tag",
     });
   }
@@ -32,6 +35,7 @@ export function detectAstro(pageData) {
   if (pageData.scripts.srcList.some((src) => src.includes("/_astro/"))) {
     evidence.push({
       type: "strong",
+      decisive: true,
       message: "Found Astro build asset path",
     });
   }
@@ -42,8 +46,6 @@ export function detectAstro(pageData) {
       message: "Found Astro client directives",
     });
   }
-
-  const hasAstroInScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("astro"));
 
   if (hasAstroInScripts) {
     evidence.push({

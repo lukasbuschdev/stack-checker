@@ -2,32 +2,37 @@ export function detectKnockout(pageData) {
   const evidence = [];
 
   const html = pageData.dom.html;
-
   const hasKnockoutGlobal = !!window.ko;
-
-  if (hasKnockoutGlobal) {
-    evidence.push({
-      type: "strong",
-      message: "Found Knockout global",
-    });
-  }
-
   const hasKnockoutBindings = html.includes("data-bind");
-
-  if (hasKnockoutBindings) {
-    evidence.push({
-      type: "strong",
-      message: "Found Knockout data-bind attributes",
-    });
-  }
-
   const hasKnockoutScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("knockout"));
 
-  if (hasKnockoutScripts) {
+  if (hasKnockoutGlobal && hasKnockoutBindings) {
     evidence.push({
-      type: "medium",
-      message: "Found Knockout script",
+      type: "strong",
+      decisive: true,
+      message: "Found Knockout global with data-bind attributes",
     });
+  } else {
+    if (hasKnockoutGlobal) {
+      evidence.push({
+        type: "strong",
+        message: "Found Knockout global",
+      });
+    }
+
+    if (hasKnockoutBindings) {
+      evidence.push({
+        type: "strong",
+        message: "Found Knockout data-bind attributes",
+      });
+    }
+
+    if (!hasKnockoutGlobal && !hasKnockoutBindings && hasKnockoutScripts) {
+      evidence.push({
+        type: "weak",
+        message: "Found Knockout script",
+      });
+    }
   }
 
   return {

@@ -1,29 +1,30 @@
 export function evaluateDetection(evidence = []) {
+  let score = 0;
+  let hasDecisive = false;
+
   const weights = {
     strong: 40,
     medium: 20,
     weak: 10,
   };
 
-  let score = 0;
-  let strongCount = 0;
-  let mediumCount = 0;
-  let weakCount = 0;
-
   for (const item of evidence) {
     score += weights[item.type] || 0;
 
-    if (item.type === "strong") strongCount++;
-    if (item.type === "medium") mediumCount++;
-    if (item.type === "weak") weakCount++;
+    if (item.decisive) {
+      hasDecisive = true;
+    }
   }
 
-  const confidence = Math.min(score, 100);
-
-  const detected = strongCount > 0 || mediumCount > 0 || weakCount >= 2;
+  if (hasDecisive) {
+    return {
+      detected: true,
+      confidence: 100,
+    };
+  }
 
   return {
-    detected,
-    confidence,
+    detected: score >= 30,
+    confidence: Math.min(score, 100),
   };
 }

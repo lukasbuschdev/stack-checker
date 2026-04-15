@@ -2,6 +2,8 @@ export function detectBackbone(pageData) {
   const evidence = [];
 
   const hasBackboneGlobal = !!window.Backbone;
+  const hasBackboneRuntime = pageData.scripts.content?.some((content) => content.includes("Backbone.Model") || content.includes("Backbone.View"));
+  const hasBackboneScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("backbone"));
 
   if (hasBackboneGlobal) {
     evidence.push({
@@ -10,16 +12,12 @@ export function detectBackbone(pageData) {
     });
   }
 
-  const hasBackboneRuntime = pageData.scripts.content?.some((content) => content.includes("Backbone.Model") || content.includes("Backbone.View"));
-
   if (hasBackboneRuntime) {
     evidence.push({
       type: "medium",
       message: "Found Backbone runtime usage",
     });
   }
-
-  const hasBackboneScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("backbone"));
 
   if (hasBackboneScripts) {
     evidence.push({

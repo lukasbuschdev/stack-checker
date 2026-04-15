@@ -2,8 +2,9 @@ export function detectWebflow(pageData) {
   const evidence = [];
 
   const html = pageData.dom.html;
-
   const hasWebflowClass = html.includes("w-webflow");
+  const hasWebflowAttrs = html.includes("data-wf-page");
+  const hasWebflowScripts = pageData.scripts.srcList.some((src) => src.includes("webflow.js"));
 
   if (hasWebflowClass) {
     evidence.push({
@@ -12,16 +13,13 @@ export function detectWebflow(pageData) {
     });
   }
 
-  const hasWebflowAttrs = html.includes("data-wf-page");
-
   if (hasWebflowAttrs) {
     evidence.push({
       type: "medium",
+      decisive: true,
       message: "Found Webflow attributes",
     });
   }
-
-  const hasWebflowScripts = pageData.scripts.srcList.some((src) => src.includes("webflow.js"));
 
   if (hasWebflowScripts) {
     evidence.push({

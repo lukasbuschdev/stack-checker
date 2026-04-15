@@ -2,17 +2,18 @@ export function detectStencil(pageData) {
   const evidence = [];
 
   const html = pageData.dom.html;
-
   const hasStencilInternals = html.includes("__stencil") || html.includes("stencil-component");
+  const hasHydratedClass = html.includes('class="hydrated"') || html.includes(" hydrated");
+  const hasComponentReady = pageData.scripts.content?.some((content) => content.includes("componentOnReady"));
+  const hasStencilScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("stencil"));
 
   if (hasStencilInternals) {
     evidence.push({
       type: "strong",
+      decisive: true,
       message: "Found Stencil internals",
     });
   }
-
-  const hasHydratedClass = html.includes('class="hydrated"') || html.includes(" hydrated");
 
   if (hasHydratedClass) {
     evidence.push({
@@ -21,16 +22,12 @@ export function detectStencil(pageData) {
     });
   }
 
-  const hasComponentReady = pageData.scripts.content?.some((content) => content.includes("componentOnReady"));
-
   if (hasComponentReady) {
     evidence.push({
       type: "medium",
       message: "Found Stencil component lifecycle",
     });
   }
-
-  const hasStencilScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("stencil"));
 
   if (hasStencilScripts) {
     evidence.push({

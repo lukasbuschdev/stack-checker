@@ -41,43 +41,6 @@ import { detectJoomla } from "../detectors/cms/joomla-detector.js";
 import { buildFallbackInsights } from "../detectors/fallback/fallback.js";
 import { evaluateDetection } from "../scoring/confidence-engine.js";
 
-const TECHNOLOGY_TYPES = {
-  Angular: "framework",
-  React: "framework",
-  Vue: "framework",
-  "Next.js": "framework",
-  Nuxt: "framework",
-  Astro: "framework",
-  Svelte: "framework",
-  Solid: "framework",
-  Remix: "framework",
-  Gatsby: "framework",
-  Alpine: "framework",
-  Qwik: "framework",
-  Preact: "framework",
-  Lit: "framework",
-  Stencil: "framework",
-  "Ember.js": "framework",
-  Knockout: "framework",
-
-  WordPress: "cms",
-  Shopify: "cms",
-  Wix: "cms",
-  Squarespace: "cms",
-  Webflow: "cms",
-  Joomla: "cms",
-
-  "Tailwind CSS": "library",
-  Bootstrap: "library",
-  "Angular Material": "library",
-  jQuery: "library",
-  GSAP: "library",
-  "Three.js": "library",
-  Swiper: "library",
-  AOS: "library",
-  "Chart.js": "library",
-};
-
 function runDetection() {
   const pageData = {
     dom: scanDOM(),
@@ -123,7 +86,6 @@ function runDetection() {
     detectJoomla(pageData),
   ];
 
-  // ---------- CENTRAL SCORING ----------
   const scoredResults = results.map((result) => {
     const evaluation = evaluateDetection(result.evidence);
 
@@ -136,7 +98,6 @@ function runDetection() {
 
   const finalResults = [...scoredResults];
 
-  // ---------- SUPPRESSION LOGIC ----------
   const hasNext = finalResults.find((r) => r.name === "Next.js" && r.detected);
   const hasNuxt = finalResults.find((r) => r.name === "Nuxt" && r.detected);
   const hasAstro = finalResults.find((r) => r.name === "Astro" && r.detected);
@@ -196,10 +157,9 @@ function runDetection() {
     }
   }
 
-  // ---------- TYPE ASSIGNMENT ----------
   const typedResults = finalResults.map((r) => ({
     ...r,
-    type: r.type || TECHNOLOGY_TYPES[r.name?.trim()] || "other",
+    type: r.type || "other",
   }));
 
   const priority = {
@@ -211,7 +171,6 @@ function runDetection() {
 
   const detected = typedResults.filter((r) => r.detected);
 
-  // ---------- PRIMARY ----------
   const primary =
     [...detected].sort((a, b) => {
       const p = priority[b.type] - priority[a.type];
@@ -219,10 +178,7 @@ function runDetection() {
       return b.confidence - a.confidence;
     })[0] || null;
 
-  // ---------- SECONDARY ----------
   const secondary = detected.filter((r) => r !== primary).sort((a, b) => b.confidence - a.confidence);
-
-  // ---------- SMART FALLBACK ----------
   const hasMeaningfulDetection = detected.some((r) => r.confidence >= 30);
 
   let fallback = null;

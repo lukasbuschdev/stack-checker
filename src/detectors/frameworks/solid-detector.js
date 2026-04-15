@@ -2,6 +2,9 @@ export function detectSolid(pageData) {
   const evidence = [];
 
   const hasSolidRoot = pageData.dom.html.includes("data-hk") || pageData.dom.html.includes("data-solid");
+  const hasSolidRuntime = pageData.scripts.content?.some((content) => content.includes("createSignal") || content.includes("createEffect") || content.includes("insert("));
+  const hasSolidDevtools = !!window.__SOLID_DEVTOOLS_GLOBAL_HOOK__;
+  const hasSolidInScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("solid"));
 
   if (hasSolidRoot) {
     evidence.push({
@@ -10,8 +13,6 @@ export function detectSolid(pageData) {
     });
   }
 
-  const hasSolidRuntime = pageData.scripts.content?.some((content) => content.includes("createSignal") || content.includes("createEffect") || content.includes("insert("));
-
   if (hasSolidRuntime) {
     evidence.push({
       type: "medium",
@@ -19,16 +20,13 @@ export function detectSolid(pageData) {
     });
   }
 
-  const hasSolidDevtools = !!window.__SOLID_DEVTOOLS_GLOBAL_HOOK__;
-
   if (hasSolidDevtools) {
     evidence.push({
       type: "strong",
+      decisive: true,
       message: "Found Solid DevTools hook",
     });
   }
-
-  const hasSolidInScripts = pageData.scripts.srcList.some((src) => src.toLowerCase().includes("solid"));
 
   if (hasSolidInScripts) {
     evidence.push({
