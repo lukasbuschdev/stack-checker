@@ -50,16 +50,9 @@ export function detectAngular(pageData) {
     });
   }
 
-  const score = evidence.reduce((acc, e) => {
-    if (e.type === "strong") return acc + 3;
-    if (e.type === "medium") return acc + 2;
-    return acc + 1;
-  }, 0);
-
   return {
     name: "Angular",
-    detected: score >= 3,
-    confidence: Math.min(score / 6, 1),
+    type: "framework",
     evidence,
   };
 }

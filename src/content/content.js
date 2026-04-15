@@ -38,7 +38,45 @@ import { detectSquarespace } from "../detectors/cms/squarespace-detector.js";
 import { detectWebflow } from "../detectors/cms/webflow-detector.js";
 import { detectJoomla } from "../detectors/cms/joomla-detector.js";
 
+import { buildFallbackInsights } from "../detectors/fallback/fallback.js";
 import { evaluateDetection } from "../scoring/confidence-engine.js";
+
+const TECHNOLOGY_TYPES = {
+  Angular: "framework",
+  React: "framework",
+  Vue: "framework",
+  "Next.js": "framework",
+  Nuxt: "framework",
+  Astro: "framework",
+  Svelte: "framework",
+  Solid: "framework",
+  Remix: "framework",
+  Gatsby: "framework",
+  Alpine: "framework",
+  Qwik: "framework",
+  Preact: "framework",
+  Lit: "framework",
+  Stencil: "framework",
+  "Ember.js": "framework",
+  Knockout: "framework",
+
+  WordPress: "cms",
+  Shopify: "cms",
+  Wix: "cms",
+  Squarespace: "cms",
+  Webflow: "cms",
+  Joomla: "cms",
+
+  "Tailwind CSS": "library",
+  Bootstrap: "library",
+  "Angular Material": "library",
+  jQuery: "library",
+  GSAP: "library",
+  "Three.js": "library",
+  Swiper: "library",
+  AOS: "library",
+  "Chart.js": "library",
+};
 
 function runDetection() {
   const pageData = {
@@ -66,6 +104,7 @@ function runDetection() {
     detectStencil(pageData),
     detectEmber(pageData),
     detectKnockout(pageData),
+
     detectTailwind(pageData),
     detectBootstrap(pageData),
     detectAngularMaterial(pageData),
@@ -75,6 +114,7 @@ function runDetection() {
     detectSwiper(pageData),
     detectAOS(pageData),
     detectChartJS(pageData),
+
     detectWordPress(pageData),
     detectShopify(pageData),
     detectWix(pageData),
@@ -83,6 +123,7 @@ function runDetection() {
     detectJoomla(pageData),
   ];
 
+  // ---------- CENTRAL SCORING ----------
   const scoredResults = results.map((result) => {
     const evaluation = evaluateDetection(result.evidence);
 
@@ -95,6 +136,7 @@ function runDetection() {
 
   const finalResults = [...scoredResults];
 
+  // ---------- SUPPRESSION LOGIC ----------
   const hasNext = finalResults.find((r) => r.name === "Next.js" && r.detected);
   const hasNuxt = finalResults.find((r) => r.name === "Nuxt" && r.detected);
   const hasAstro = finalResults.find((r) => r.name === "Astro" && r.detected);
@@ -104,9 +146,7 @@ function runDetection() {
 
   if (!hasAngular) {
     const mat = finalResults.find((r) => r.name === "Angular Material");
-    if (mat) {
-      mat.detected = false;
-    }
+    if (mat) mat.detected = false;
   }
 
   if (hasNext) {
@@ -156,9 +196,59 @@ function runDetection() {
     }
   }
 
+  // ---------- TYPE ASSIGNMENT ----------
+  const typedResults = finalResults.map((r) => ({
+    ...r,
+    type: r.type || TECHNOLOGY_TYPES[r.name?.trim()] || "other",
+  }));
+
+  const priority = {
+    cms: 3,
+    framework: 2,
+    library: 1,
+    other: 0,
+  };
+
+  const detected = typedResults.filter((r) => r.detected);
+
+  // ---------- PRIMARY ----------
+  const primary =
+    [...detected].sort((a, b) => {
+      const p = priority[b.type] - priority[a.type];
+      if (p !== 0) return p;
+      return b.confidence - a.confidence;
+    })[0] || null;
+
+  // ---------- SECONDARY ----------
+  const secondary = detected.filter((r) => r !== primary).sort((a, b) => b.confidence - a.confidence);
+
+  // ---------- SMART FALLBACK ----------
+  const hasMeaningfulDetection = detected.some((r) => r.confidence >= 30);
+
+  let fallback = null;
+
+  if (!hasMeaningfulDetection) {
+    fallback = {
+      name: "Unknown Stack",
+      type: "other",
+      detected: true,
+      confidence: 0,
+      evidence: [
+        {
+          type: "info",
+          message: "No reliable frontend technologies detected",
+        },
+      ],
+      insights: buildFallbackInsights(pageData),
+    };
+  }
+
   chrome.runtime.sendMessage({
     type: "STORE_STACK_RESULTS",
-    data: finalResults,
+    data: {
+      primary: primary || fallback,
+      secondary: primary ? secondary : [],
+    },
   });
 }
 

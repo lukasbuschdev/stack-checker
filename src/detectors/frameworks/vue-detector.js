@@ -35,6 +35,7 @@ export function detectVue(pageData) {
 
   return {
     name: "Vue",
+    type: "framework",
     detected: evidence.some((item) => item.type === "strong" || item.type === "medium"),
     evidence,
   };

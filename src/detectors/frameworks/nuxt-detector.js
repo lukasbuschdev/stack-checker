@@ -34,6 +34,7 @@ export function detectNuxt(pageData) {
   return {
     name: "Nuxt",
     detected: evidence.some((item) => item.type === "strong" || item.type === "medium"),
+    type: "framework",
     evidence,
   };
 }

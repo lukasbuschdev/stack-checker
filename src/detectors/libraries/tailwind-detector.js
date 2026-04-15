@@ -11,21 +11,33 @@ export function detectTailwind(pageData) {
 
   const hasTailwindCDN = pageData.scripts.srcList.some((src) => src.includes("cdn.tailwindcss.com"));
 
-  const strongCombination = variantMatches.length >= 2 && utilityMatches.length >= 4;
+  // ✅ more flexible thresholds
+  const hasVariants = variantMatches.length >= 1;
+  const hasUtilities = utilityMatches.length >= 3;
+  const hasStrongUtilities = utilityMatches.length >= 6;
 
-  const strongArbitrary = arbitraryMatches.length >= 2;
+  const hasArbitrary = arbitraryMatches.length >= 1;
 
-  if (strongCombination) {
+  // ---------- EVIDENCE ----------
+
+  if (hasVariants && hasUtilities) {
     evidence.push({
       type: "strong",
-      message: "Found multiple Tailwind variants with utilities",
+      message: "Found Tailwind variants with utility classes",
     });
   }
 
-  if (strongArbitrary && utilityMatches.length >= 2) {
+  if (hasStrongUtilities) {
     evidence.push({
       type: "strong",
-      message: "Found Tailwind arbitrary values with utilities",
+      message: "Found large number of Tailwind utility classes",
+    });
+  }
+
+  if (hasArbitrary) {
+    evidence.push({
+      type: "medium",
+      message: "Found Tailwind arbitrary values",
     });
   }
 
@@ -36,15 +48,9 @@ export function detectTailwind(pageData) {
     });
   }
 
-  const score = evidence.reduce((acc, e) => {
-    if (e.type === "strong") return acc + 3;
-    return acc + 1;
-  }, 0);
-
   return {
     name: "Tailwind CSS",
-    detected: score >= 3,
-    confidence: Math.min(score / 6, 1),
+    type: "library",
     evidence,
   };
 }

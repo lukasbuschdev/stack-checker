@@ -1,7 +1,7 @@
 export function evaluateDetection(evidence = []) {
   const weights = {
-    strong: 50,
-    medium: 25,
+    strong: 40,
+    medium: 20,
     weak: 10,
   };
 
