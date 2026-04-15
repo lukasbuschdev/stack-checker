@@ -1,0 +1,1 @@
+chrome.runtime.onMessage.addListener((e,t,n)=>{e.type===`STORE_STACK_RESULTS`&&t.tab?.id&&chrome.storage.local.set({[`stackResults_${t.tab.id}`]:e.data})});
