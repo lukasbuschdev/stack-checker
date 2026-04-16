@@ -81,12 +81,12 @@ li {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .insight-group ul {
   margin: 0;
-  padding-left: 16px;
+  padding-left: 15px;
 }
 
 .insight-group.critical strong {
