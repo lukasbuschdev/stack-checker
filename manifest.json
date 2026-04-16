@@ -8,7 +8,7 @@
     "default_popup": "src/popup/popup.html"
   },
 
-  "permissions": ["activeTab", "storage", "tabs"],
+  "permissions": ["activeTab", "storage", "tabs", "webRequest"],
 
   "host_permissions": ["<all_urls>"],
 

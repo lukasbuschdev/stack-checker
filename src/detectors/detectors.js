@@ -34,6 +34,7 @@ import { detectWebflow } from "./cms/webflow-detector.js";
 import { detectJoomla } from "./cms/joomla-detector.js";
 
 import { detectRenderStrategy } from "./rendering/render-strategy-detector.js";
+import { detectCDN } from "./cdn/cdn-detector.js";
 
 export const DETECTORS = [
   detectAngular,
@@ -72,4 +73,6 @@ export const DETECTORS = [
   detectJoomla,
 
   detectRenderStrategy,
+
+  detectCDN,
 ];

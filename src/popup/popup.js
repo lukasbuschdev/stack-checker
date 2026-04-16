@@ -14,7 +14,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 });
 
 function renderResults(data) {
-  const { primary, secondary, rendering } = data || {};
+  const { primary, secondary, rendering, cdn } = data || {};
   let html = "";
   const detectedTypes = [];
 
@@ -41,19 +41,19 @@ function renderResults(data) {
 
     html += `<div class="result-section"><strong>Primary Technologies</strong></div>`;
     html += `
-      <div class="result-card primary">
+      <div class="result-card primary column gap-20">
         <div class="result-header">
           <strong>[${formatType(primary.type)}] ${primary.name}</strong>
-          <span>${primary.confidence}%</span>
+          <strong>${primary.confidence}%</strong>
         </div>
 
-        <div class="result-main">
+        <div class="column gap-20">
           ${evidenceItems ? `<ul>${evidenceItems}</ul>` : `<p class="muted">No direct evidence found</p>`}
 
           ${
             insightsItems
               ? `
-              <div class="insights">
+              <div class="insights column gap-20">
                 <strong>Analysis</strong>
                 <ul>${insightsItems}</ul>
               </div>
@@ -73,10 +73,10 @@ function renderResults(data) {
         const insightsItems = (result.insights || []).map((item) => `<li>${item}</li>`).join("");
 
         return `
-          <div class="result-card">
+          <div class="result-card column gap-20">
             <div class="result-header">
               <strong>[${formatType(result.type)}] ${result.name}</strong>
-              <span>${result.confidence}%</span>
+              <strong>${result.confidence}%</strong>
             </div>
 
             ${evidenceItems ? `<ul>${evidenceItems}</ul>` : `<p class="muted">No direct evidence found</p>`}
@@ -84,7 +84,7 @@ function renderResults(data) {
             ${
               insightsItems
                 ? `
-                <div class="insights">
+                <div class="insights column gap-20">
                   <strong>Analysis</strong>
                   <ul>${insightsItems}</ul>
                 </div>
@@ -99,14 +99,14 @@ function renderResults(data) {
 
   if (!html) {
     html = `
-      <div class="result-card">
+      <div class="result-card column gap-20">
         <div class="result-header">
           <strong>Analysis</strong>
         </div>
-        <p class="muted">
+        <span class="muted">
           No detectable technologies. This site likely uses server-side rendering,
           a custom framework, or heavily optimized production builds.
-        </p>
+        </span>
       </div>
     `;
   }
@@ -116,15 +116,43 @@ function renderResults(data) {
 
     html += `<div class="result-section"><strong>Rendering Strategy</strong></div>`;
     html += `
-    <div class="result-card">
+    <div class="result-card column gap-20">
       <div class="result-header">
         <strong>${formatRenderingStrategy(rendering.strategy)}</strong>
-        <span>${rendering.confidence}%</span>
+        <strong>${rendering.confidence}%</strong>
       </div>
 
-      ${evidenceItems ? `<ul>${evidenceItems}</ul>` : `<p class="muted">No clear rendering evidence found</p>`}
+      ${evidenceItems ? `<ul>${evidenceItems}</ul>` : `<span class="muted">No clear rendering evidence found</span>`}
     </div>
   `;
+  }
+
+  if (cdn) {
+    const evidenceItems = (cdn.evidence || []).map((item) => `<li>${item.message}</li>`).join("");
+    const edge = cdn.edge ? `<span><strong>Edge:</strong> ${cdn.edge}</span>` : "";
+    const assets = cdn.assets && cdn.assets.length > 0 ? `<span><strong>Assets:</strong> ${cdn.assets.join(", ")}</span>` : "";
+    const source = cdn.source === "headers" ? `<span><strong>Detected via:</strong> server headers</span>` : `<span><strong>Detected via:</strong> resource analysis</span>`;
+    const platform = cdn.platform ? `<span><strong>Platform:</strong> ${cdn.platform}</span>` : "";
+
+    html += `<div class="result-section"><strong>Delivery & Hosting</strong></div>`;
+
+    html += `
+      <div class="result-card column gap-20">
+        <div class="result-header">
+          <strong>${cdn.edge || cdn.platform || (cdn.assets.length > 0 ? "Asset CDN detected" : "No CDN detected")}</strong>
+          <strong>${cdn.confidence}%</strong>
+        </div>
+
+        <div class="column gap-20">
+          ${source}
+          ${edge}
+          ${platform}
+          ${assets}
+        </div>
+
+        ${evidenceItems ? `<ul>${evidenceItems}</ul>` : `<span class="muted">No clear CDN evidence found</span>`}
+      </div>
+    `;
   }
 
   resultsContainer.innerHTML = html;

@@ -24,13 +24,11 @@ function runDetection() {
   };
 
   const results = DETECTORS.map((detector) => detector(pageData));
-
-  // ✅ Separate rendering result early
   const renderingResult = results.find((r) => r.type === "rendering") || null;
+  let cdnResult = results.find((r) => r.type === "infrastructure") || null;
 
   const scoredResults = results.map((result) => {
-    // ✅ Skip scoring override for rendering
-    if (result.type === "rendering") {
+    if (result.type === "rendering" || result.type === "infrastructure") {
       return result;
     }
 
@@ -50,9 +48,7 @@ function runDetection() {
     if (!r.type) r.type = "other";
   });
 
-  // ✅ Exclude rendering from stack detection
-  const stackResults = finalResults.filter((r) => r.type !== "rendering");
-
+  const stackResults = finalResults.filter((r) => r.type !== "rendering" && r.type !== "infrastructure");
   const detected = stackResults.filter((r) => r.detected === true);
 
   const primary =
@@ -63,7 +59,6 @@ function runDetection() {
     })[0] || null;
 
   const secondary = detected.filter((r) => r !== primary).sort((a, b) => b.confidence - a.confidence);
-
   const hasMeaningfulDetection = detected.some((r) => r.confidence >= 30);
 
   let fallback = null;
@@ -84,12 +79,41 @@ function runDetection() {
     };
   }
 
+  chrome.runtime.sendMessage({ type: "GET_TAB_ID" }, (response) => {
+    const tabId = response?.tabId;
+
+    if (!tabId) {
+      sendResults(primary, secondary, renderingResult, cdnResult);
+      return;
+    }
+
+    chrome.storage.local.get(`cdnHeaders_${tabId}`, (data) => {
+      const headerCDN = data[`cdnHeaders_${tabId}`];
+
+      if (headerCDN && cdnResult) {
+        cdnResult.edge = headerCDN.edge;
+        cdnResult.confidence = headerCDN.confidence;
+        cdnResult.source = "headers";
+
+        cdnResult.evidence.push({
+          type: "strong",
+          message: `${headerCDN.edge} detected via response headers`,
+        });
+      }
+
+      sendResults(primary, secondary, renderingResult, cdnResult);
+    });
+  });
+}
+
+function sendResults(primary, secondary, renderingResult, cdnResult) {
   chrome.runtime.sendMessage({
     type: "STORE_STACK_RESULTS",
     data: {
-      primary: primary || fallback,
+      primary: primary,
       secondary: primary ? secondary : [],
-      rendering: renderingResult, // ✅ NEW
+      rendering: renderingResult,
+      cdn: cdnResult,
     },
   });
 }

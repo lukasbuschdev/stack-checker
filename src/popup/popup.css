@@ -13,42 +13,31 @@ h2 {
   font-size: 1.5rem;
 }
 
-#results {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
 .result-section {
   font-size: 1.2rem;
 }
 
 .result-card {
   padding: 20px;
-  margin-bottom: 15px;
   border: none;
   border-radius: 15px;
+  margin-bottom: 25px;
   box-shadow: 2px 0 15px #00000035;
+
+  span {
+    font-size: 1rem;
+    color: #bbbbbb;
+  }
 }
 
 .result-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
   font-size: 1rem;
 }
 
-.result-main {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
 .insights {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
   font-size: 1rem;
 }
 
@@ -61,4 +50,17 @@ ul {
 li {
   margin-bottom: 4px;
   font-size: 1rem;
+}
+
+.muted {
+  color: #bbbbbb;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.gap-20 {
+  gap: 20px;
 }
