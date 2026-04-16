@@ -17,6 +17,5 @@ export function scanMeta() {
     hasAstroGenerator: (meta["generator"] || "").toLowerCase().includes("astro"),
     hasNextGenerator: (meta["generator"] || "").toLowerCase().includes("next"),
     hasNuxtGenerator: (meta["generator"] || "").toLowerCase().includes("nuxt"),
-    hasAstroGenerator: (meta["generator"] || "").toLowerCase().includes("astro"),
   };
 }

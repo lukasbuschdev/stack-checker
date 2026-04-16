@@ -33,6 +33,8 @@ import { detectSquarespace } from "./cms/squarespace-detector.js";
 import { detectWebflow } from "./cms/webflow-detector.js";
 import { detectJoomla } from "./cms/joomla-detector.js";
 
+import { detectRenderStrategy } from "./rendering/render-strategy-detector.js";
+
 export const DETECTORS = [
   detectAngular,
   detectReact,
@@ -68,4 +70,6 @@ export const DETECTORS = [
   detectSquarespace,
   detectWebflow,
   detectJoomla,
+
+  detectRenderStrategy,
 ];

@@ -14,7 +14,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 });
 
 function renderResults(data) {
-  const { primary, secondary } = data || {};
+  const { primary, secondary, rendering } = data || {};
   let html = "";
   const detectedTypes = [];
 
@@ -111,6 +111,22 @@ function renderResults(data) {
     `;
   }
 
+  if (rendering) {
+    const evidenceItems = (rendering.evidence || []).map((item) => `<li>${item.message}</li>`).join("");
+
+    html += `<div class="result-section"><strong>Rendering Strategy</strong></div>`;
+    html += `
+    <div class="result-card">
+      <div class="result-header">
+        <strong>${formatRenderingStrategy(rendering.strategy)}</strong>
+        <span>${rendering.confidence}%</span>
+      </div>
+
+      ${evidenceItems ? `<ul>${evidenceItems}</ul>` : `<p class="muted">No clear rendering evidence found</p>`}
+    </div>
+  `;
+  }
+
   resultsContainer.innerHTML = html;
 }
 
@@ -147,4 +163,17 @@ function buildCategoryInsights({ hasFramework, hasCMS, hasLibrary }) {
   }
 
   return insights;
+}
+
+function formatRenderingStrategy(strategy) {
+  switch (strategy) {
+    case "SSR":
+      return "Server-side Rendering (SSR)";
+    case "SSG":
+      return "Static Site Generation (SSG)";
+    case "CSR":
+      return "Client-side Rendering (CSR)";
+    default:
+      return "Unknown";
+  }
 }

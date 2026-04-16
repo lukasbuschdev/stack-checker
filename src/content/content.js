@@ -25,7 +25,15 @@ function runDetection() {
 
   const results = DETECTORS.map((detector) => detector(pageData));
 
+  // ✅ Separate rendering result early
+  const renderingResult = results.find((r) => r.type === "rendering") || null;
+
   const scoredResults = results.map((result) => {
+    // ✅ Skip scoring override for rendering
+    if (result.type === "rendering") {
+      return result;
+    }
+
     const evaluation = evaluateDetection(result.evidence);
 
     return {
@@ -42,7 +50,10 @@ function runDetection() {
     if (!r.type) r.type = "other";
   });
 
-  const detected = finalResults.filter((r) => r.detected === true);
+  // ✅ Exclude rendering from stack detection
+  const stackResults = finalResults.filter((r) => r.type !== "rendering");
+
+  const detected = stackResults.filter((r) => r.detected === true);
 
   const primary =
     detected.sort((a, b) => {
@@ -52,6 +63,7 @@ function runDetection() {
     })[0] || null;
 
   const secondary = detected.filter((r) => r !== primary).sort((a, b) => b.confidence - a.confidence);
+
   const hasMeaningfulDetection = detected.some((r) => r.confidence >= 30);
 
   let fallback = null;
@@ -77,6 +89,7 @@ function runDetection() {
     data: {
       primary: primary || fallback,
       secondary: primary ? secondary : [],
+      rendering: renderingResult, // ✅ NEW
     },
   });
 }

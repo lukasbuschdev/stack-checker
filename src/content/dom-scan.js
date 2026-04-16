@@ -1,14 +1,12 @@
 export function scanDOM() {
   const elements = Array.from(document.querySelectorAll("*"));
-
   const elementsWithNgVersion = elements.filter((el) => el.hasAttribute("ng-version"));
-
   const elementsWithNgServerContext = elements.filter((el) => el.hasAttribute("ng-server-context"));
-
   const allAttributeNames = elements.flatMap((el) => Array.from(el.attributes).map((attr) => attr.name));
 
   return {
     html: document.documentElement.outerHTML,
+    bodyText: document.body?.innerText || "",
     hasNgVersion: elementsWithNgVersion.length > 0,
     hasNgServerContext: elementsWithNgServerContext.length > 0,
     ngVersionElements: elementsWithNgVersion.map((el) => el.tagName),
