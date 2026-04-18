@@ -5,8 +5,9 @@ import { renderPrimary } from "../templates/primary-technologies";
 import { renderRenderingStrategy } from "../templates/rendering";
 import { renderSecondary, renderSecondaryFallback } from "../templates/secondary-technologies";
 import { renderSEO } from "../templates/seo";
-import { renderSummary } from "../templates/summary";
+import { renderFullSummary } from "../templates/summary-full";
 import { renderFallback } from "../templates/technology-fallback";
+import { initAutoRefresh } from "../utils/helpers";
 import { processTechnologyData } from "../utils/technology-processing";
 
 const container = document.getElementById("dashboard-results");
@@ -18,6 +19,7 @@ if (!tabId) {
 } else {
   chrome.storage.local.get(`stackResults_${tabId}`, (data) => {
     renderDashboard(data[`stackResults_${tabId}`] || {});
+    initAutoRefresh(tabId, renderDashboard);
   });
 }
 
@@ -31,33 +33,27 @@ function renderDashboard(data) {
 
   let html = "";
 
-  if (summary) html += renderSummary(summary);
+  if (summary) html += renderFullSummary(summary);
   if (loading) html += renderLoading(loading);
   if (interaction) html += renderInteraction(interaction);
   if (seo && seo.data) html += renderSEO(seo);
-
-  if (primary) {
-    html += renderPrimary(primary, categoryInsights);
-  }
+  if (primary) html += renderPrimary(primary, categoryInsights);
 
   if (secondary && secondary.length) {
     html += /*html*/ `
-        <div class="result-section"><strong>Secondary Technologies</strong></div>
-        ${secondary.map(renderSecondary).join("")}
-    `;
+          <div class="result-section"><strong>Secondary Technologies</strong></div>
+          ${secondary.map(renderSecondary).join("")}
+      `;
   } else if (secondary) {
     html += /*html*/ `
-        <div class="result-section"><strong>Secondary Technologies</strong></div>
-        ${renderSecondaryFallback()}
-    `;
+          <div class="result-section"><strong>Secondary Technologies</strong></div>
+          ${renderSecondaryFallback()}
+      `;
   }
 
   if (rendering) html += renderRenderingStrategy(rendering);
   if (cdn) html += renderCDN(cdn);
-
-  if (!html) {
-    html = renderFallback();
-  }
+  if (!html) html = renderFallback();
 
   container.innerHTML = html;
 }

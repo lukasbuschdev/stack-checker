@@ -13,94 +13,23 @@ const thresholds = {
 };
 
 export function renderInteraction(interaction) {
-  const motionOverview = /*html*/ `
-      <div class="column gap-10">
-        <span class="white"><strong>Motion Overview</strong></span>
-      
-        <span>
-          <strong>Animated elements:</strong>
-          <span class="metric ${getMetricClass(interaction.data.animatedCount, thresholds.animatedCount)}">
-            ${interaction.data.animatedCount}
-          </span>
-        </span>
-      
-        <span>
-          <strong>Expensive animations:</strong>
-          <span class="metric ${getMetricClass(interaction.data.expensiveAnimationCount, thresholds.expensiveAnimationCount)}">
-            ${interaction.data.expensiveAnimationCount}
-          </span>
-        </span>
-      
-        <span>
-          <strong>Fixed elements:</strong>
-          <span class="metric ${getMetricClass(interaction.data.fixedCount, thresholds.fixedCount)}">
-            ${interaction.data.fixedCount}
-          </span>
-        </span>
-      
-        <span>
-          <strong>Hover rules:</strong>
-          <span class="metric ${getMetricClass(interaction.data.hoverRules, thresholds.hoverRules)}">
-            ${interaction.data.hoverRules}
-          </span>
-        </span>
-      
-        <span>
-          <strong>Reduced motion:</strong>
-          <span class="metric ${interaction.data.hasReducedMotionSupport ? "good" : "critical"}">
-            ${interaction.data.hasReducedMotionSupport ? "supported" : "not supported"}
-          </span>
-        </span>
-      
-        <span>
-          <strong>Box shadows:</strong>
-          <span class="metric ${getMetricClass(interaction.data.boxShadowCount, thresholds.boxShadowCount)}">
-            ${interaction.data.boxShadowCount}
-          </span>
-        </span>
-      
-        <span>
-          <strong>Filters:</strong>
-          <span class="metric ${getMetricClass(interaction.data.filterCount, thresholds.filterCount)}">
-            ${interaction.data.filterCount}
-          </span>
-        </span>
-      
-        <span>
-          <strong>Backdrop filters:</strong>
-          <span class="metric ${getMetricClass(interaction.data.backdropFilterCount, thresholds.backdropFilterCount)}">
-            ${interaction.data.backdropFilterCount}
-          </span>
-        </span>
-      
-        <span>
-          <strong>Gradients:</strong>
-          <span class="metric ${getMetricClass(interaction.data.gradientCount, thresholds.gradientCount)}">
-            ${interaction.data.gradientCount}
-          </span>
-        </span>
-      
-        <span>
-          <strong>GPU-friendly animations:</strong>
-          <span class="metric good">
-            ${interaction.data.gpuFriendlyAnimationCount}
-          </span>
-        </span>
-      
-        <span>
-          <strong>Layout-triggering animations:</strong>
-          <span class="metric ${getMetricClass(interaction.data.layoutAnimationCount, thresholds.layoutAnimationCount)}">
-            ${interaction.data.layoutAnimationCount}
-          </span>
-        </span>
-      </div>
-    `;
+  const d = interaction.data;
 
-  const groupedInsights = {
-    critical: [],
-    warning: [],
-    good: [],
-  };
+  const metrics = `
+    ${metricRow("Animated elements", d.animatedCount, thresholds.animatedCount)}
+    ${metricRow("Expensive animations", d.expensiveAnimationCount, thresholds.expensiveAnimationCount)}
+    ${metricRow("Fixed elements", d.fixedCount, thresholds.fixedCount)}
+    ${metricRow("Hover rules", d.hoverRules, thresholds.hoverRules)}
+    ${metricRow("Reduced motion", d.hasReducedMotionSupport ? "supported" : "not supported", null, !d.hasReducedMotionSupport)}
+    ${metricRow("Box shadows", d.boxShadowCount, thresholds.boxShadowCount)}
+    ${metricRow("Filters", d.filterCount, thresholds.filterCount)}
+    ${metricRow("Backdrop filters", d.backdropFilterCount, thresholds.backdropFilterCount)}
+    ${metricRow("Gradients", d.gradientCount, thresholds.gradientCount)}
+    ${metricRow("GPU-friendly animations", d.gpuFriendlyAnimationCount)}
+    ${metricRow("Layout-triggering animations", d.layoutAnimationCount, thresholds.layoutAnimationCount)}
+  `;
+
+  const groupedInsights = { critical: [], warning: [], good: [] };
 
   (interaction.insights || []).forEach((item) => {
     if (groupedInsights[item.level]) {
@@ -109,36 +38,54 @@ export function renderInteraction(interaction) {
   });
 
   const insightsItems = `
-      ${buildPerformanceInsightGroup("Critical Issues", groupedInsights.critical, "critical")}
-      ${buildPerformanceInsightGroup("Warnings", groupedInsights.warning, "warning")}
-      ${buildPerformanceInsightGroup("Good Signals", groupedInsights.good, "good")}
-    `;
+    ${buildPerformanceInsightGroup("Critical Issues", groupedInsights.critical, "critical")}
+    ${buildPerformanceInsightGroup("Warnings", groupedInsights.warning, "warning")}
+    ${buildPerformanceInsightGroup("Good Signals", groupedInsights.good, "good")}
+  `;
 
-  return /*html*/ `<div class="result-section"><strong>Interaction Performance</strong></div>
-      <div class="result-card column gap-30">
-        ${motionOverview}
-
-        ${
-          insightsItems
-            ? /*html*/ `
-              <div class="insights column gap-10">
-                <strong>Analysis</strong>
-                <ul>${insightsItems}</ul>
-              </div>
-            `
-            : /*html*/ `
-              <span class="muted">
-                No major interaction or animation issues detected
-              </span>
-            `
-        }
+  return /*html*/ `
+    <div class="result-section"><strong>Interaction Performance</strong></div>
+    <div class="result-card column gap-30">
+      <div class="metric-block">
+        <span class="block-title">Motion & Complexity</span>
+        ${metrics}
       </div>
-    `;
+
+      ${
+        insightsItems.trim()
+          ? /*html*/ `
+          <div class="insights column gap-10">
+            <span class="block-title mt-15"><strong>Analysis</strong></span>
+            ${insightsItems}
+          </div>
+        `
+          : /*html*/ `
+          <span class="muted">
+            No major interaction or animation issues detected
+          </span>
+        `
+      }
+    </div>
+  `;
 }
 
-function getMetricClass(value, thresholds) {
-  if (value == null) return "";
-  if (value >= thresholds.critical) return "critical";
-  if (value >= thresholds.warning) return "warning";
-  return "good";
+function metricRow(label, value, thresholds = null, forceCritical = false) {
+  let cls = "";
+
+  if (forceCritical) {
+    cls = "critical";
+  } else if (thresholds && value != null) {
+    if (value >= thresholds.critical) cls = "critical";
+    else if (value >= thresholds.warning) cls = "warning";
+    else cls = "good";
+  } else {
+    cls = "white";
+  }
+
+  return /*html*/ `
+    <div class="metric-row">
+      <span>${label}</span>
+      <span class="metric ${cls}">${value}</span>
+    </div>
+  `;
 }

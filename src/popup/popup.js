@@ -1,5 +1,6 @@
-import { renderSummary } from "../templates/summary";
+import { renderSummary } from "../templates/summary-popup";
 import { renderFallback } from "../templates/technology-fallback";
+import { initAutoRefresh } from "../utils/helpers";
 
 const resultsContainer = document.getElementById("results");
 
@@ -13,26 +14,21 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 
   chrome.storage.local.get(`stackResults_${activeTab.id}`, (data) => {
     renderResults(data[`stackResults_${activeTab.id}`] || {});
-    initAutoRefresh(activeTab.id);
+    initAutoRefresh(activeTab.id, renderResults);
   });
 });
 
 function renderResults(data) {
   const { summary } = data || {};
+  const enhancedSummary = {
+    ...summary,
+    primaryDetected: !!data.primary,
+  };
+
   let html = "";
 
-  if (summary) {
-    html += renderSummary(summary);
-    html += /*html*/ `
-      <div class="dashboard-btn-container">
-        <button id="open-dashboard-btn">View Full Analysis</button>
-      </div>
-    `;
-  }
-
-  if (!html) {
-    html = renderFallback();
-  }
+  if (summary) html += renderSummary(enhancedSummary);
+  if (!html) html = renderFallback();
 
   resultsContainer.innerHTML = html;
   attachDashboardHandler();
@@ -53,20 +49,4 @@ function attachDashboardHandler() {
       });
     });
   });
-}
-
-function initAutoRefresh(tabId) {
-  let count = 0;
-
-  const intervalId = setInterval(() => {
-    chrome.storage.local.get(`stackResults_${tabId}`, (data) => {
-      renderResults(data[`stackResults_${tabId}`] || {});
-    });
-
-    count++;
-
-    if (count >= 5) {
-      clearInterval(intervalId);
-    }
-  }, 1000);
 }

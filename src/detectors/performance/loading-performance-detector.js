@@ -184,8 +184,8 @@ function formatTime(ms) {
 
 function rateLCP(lcp) {
   if (lcp == null) return "unknown";
-  if (lcp < 2500) return "good";
-  if (lcp < 4000) return "needs improvement";
+  if (lcp < 1800) return "good";
+  if (lcp < 3000) return "needs improvement";
   return "poor";
 }
 
@@ -209,9 +209,9 @@ function buildPerformanceInsights({ coreWebVitals, bundleAnalysis, renderBlockin
   const source = "Loading";
 
   if (lcp != null) {
-    if (lcp < 2500) {
+    if (lcp < 1800) {
       insights.push({ level: "good", message: "Fast largest contentful paint", source });
-    } else if (lcp < 4000) {
+    } else if (lcp < 3000) {
       insights.push({
         level: "warning",
         message: "LCP could be improved. Optimize images, enable lazy loading, or reduce server response time",
@@ -247,7 +247,7 @@ function buildPerformanceInsights({ coreWebVitals, bundleAnalysis, renderBlockin
   if (jsSize != null) {
     if (jsSize < 150 * 1024) {
       insights.push({ level: "good", message: "Small JavaScript bundle size", source });
-    } else if (jsSize < 500 * 1024) {
+    } else if (jsSize < 400 * 1024) {
       insights.push({
         level: "warning",
         message: "Moderate JS bundle size. Use code splitting and lazy load non-critical modules",

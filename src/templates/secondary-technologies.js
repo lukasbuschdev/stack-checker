@@ -1,21 +1,31 @@
+import { getConfidenceClass } from "../utils/helpers";
+
 export function renderSecondary(result) {
   const evidenceItems = (result.evidence || []).map((item) => `<li>${item.message}</li>`).join("");
   const insightsItems = (result.insights || []).map((item) => `<li>${item}</li>`).join("");
 
   return /*html*/ `
-    <div class="result-card column gap-20">
+    <div class="result-card column gap-30">
       <div class="result-header">
-        <strong>[${formatType(result.type)}] ${result.name}</strong>
-        <strong>${result.confidence}%</strong>
+        <span>
+          <strong>[${formatType(result.type)}]</strong>
+          ${result.name}
+        </span>
+        <span class="metric ${getConfidenceClass(result.confidence)}">
+          ${result.confidence}%
+        </span>
       </div>
 
-      ${evidenceItems ? `<ul>${evidenceItems}</ul>` : `<span class="muted">No direct evidence found</span>`}
+      <div class="metric-block">
+        <span class="block-title">Evidence</span>
+        ${evidenceItems ? /*html*/ `<ul>${evidenceItems}</ul>` : /*html*/ `<span class="muted">No direct evidence found</span>`}
+      </div>
 
       ${
         insightsItems
-          ? `
-          <div class="insights column gap-20">
-            <strong>Analysis</strong>
+          ? /*html*/ `
+          <div class="insights column gap-10">
+            <span class="block-title"><strong>Analysis</strong></span>
             <ul>${insightsItems}</ul>
           </div>
         `

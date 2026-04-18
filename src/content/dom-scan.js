@@ -1,5 +1,5 @@
 export function scanDOM() {
-  const rawElements = Array.from(document.querySelectorAll("*")).slice(0, 800);
+  const rawElements = Array.from(document.querySelectorAll("*")).slice(0, 1000);
 
   const elements = rawElements.map((el) => {
     const style = window.getComputedStyle(el);

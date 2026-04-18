@@ -16,59 +16,60 @@ export function renderSEO(seo) {
   });
 
   const insightsItems = `
-      ${buildSeoInsightGroup("Critical Issues", groupedInsights.critical, "critical")}
-      ${buildSeoInsightGroup("Warnings", groupedInsights.warning, "warning")}
-      ${buildSeoInsightGroup("Good Signals", groupedInsights.good, "good")}
-    `;
-
-  const titleField = title ? `<span><strong>Title:</strong> ${truncateUrl(title, 50)}</span>` : `<span class="muted">Title: missing</span>`;
-  const descriptionField = description ? `<span><strong>Description:</strong> ${truncateUrl(description, 70)}</span>` : `<span class="muted">Description: missing</span>`;
-  const h1Field = `<span><strong>H1:</strong> ${headings?.h1 ?? 0}</span>`;
-  const h2Field = `<span><strong>H2:</strong> ${headings?.h2 ?? 0}</span>`;
-  const imgField = `<span><strong>Images:</strong> ${images?.total ?? 0} (${images?.missingAlt ?? 0} missing alt)</span>`;
-  const langField = lang ? `<span><strong>Lang:</strong> ${lang}</span>` : `<span class="muted">Lang: missing</span>`;
-  const canonicalField = canonical ? `<span><strong>Canonical:</strong> set</span>` : `<span class="muted">Canonical: missing</span>`;
-  const viewportField = meta?.viewport ? `<span><strong>Viewport:</strong> set</span>` : `<span class="muted">Viewport: missing</span>`;
-  const ogField = `<span><strong>Open Graph:</strong> ${meta?.openGraph ?? 0}</span>`;
-  const twitterField = `<span><strong>Twitter:</strong> ${meta?.twitter ?? 0}</span>`;
+    ${buildSeoInsightGroup("Critical Issues", groupedInsights.critical, "critical")}
+    ${buildSeoInsightGroup("Warnings", groupedInsights.warning, "warning")}
+    ${buildSeoInsightGroup("Good Signals", groupedInsights.good, "good")}
+  `;
 
   return /*html*/ `
-      <div class="result-section"><strong>SEO</strong></div>
-      <div class="result-card column gap-30">
-        <div class="column gap-10">
-          <span class="white"><strong>Structure</strong></span>
-          ${titleField}
-          ${descriptionField}
-          ${langField}
-          ${canonicalField}
-        </div>
+    <div class="result-section"><strong>SEO</strong></div>
+    <div class="result-card column gap-30">
+      <div class="metric-block">
+        <span class="block-title">Structure</span>
 
-        <div class="column gap-10">
-          <span class="white"><strong>Headings & Content</strong></span>
-          ${h1Field}
-          ${h2Field}
-          ${imgField}
-        </div>
-
-        <div class="column gap-10">
-          <span class="white"><strong>Meta & Social</strong></span>
-          ${viewportField}
-          ${ogField}
-          ${twitterField}
-        </div>
-
-        ${
-          insightsItems
-            ? /*html*/ `
-            <div class="insights column gap-10">
-              <span class="white"><strong>Analysis</strong></span>
-              <ul>${insightsItems}</ul>
-            </div>
-          `
-            : ""
-        }
+        ${metricRow("Title", title ? truncateUrl(title, 50) : "missing", !title)}
+        ${metricRow("Description", description ? truncateUrl(description, 70) : "missing", !description)}
+        ${metricRow("Lang", lang ?? "missing", !lang)}
+        ${metricRow("Canonical", canonical ? "set" : "missing", !canonical)}
       </div>
-    `;
+
+      <div class="metric-block">
+        <span class="block-title">Headings & Content</span>
+
+        ${metricRow("H1", headings?.h1 ?? 0)}
+        ${metricRow("H2", headings?.h2 ?? 0)}
+        ${metricRow("Images", `${images?.total ?? 0} (${images?.missingAlt ?? 0} missing alt)`)}
+      </div>
+
+      <div class="metric-block">
+        <span class="block-title">Meta & Social</span>
+
+        ${metricRow("Viewport", meta?.viewport ? "set" : "missing", !meta?.viewport)}
+        ${metricRow("Open Graph", meta?.openGraph ?? 0)}
+        ${metricRow("Twitter", meta?.twitter ?? 0)}
+      </div>
+
+      ${
+        insightsItems.trim()
+          ? /*html*/ `
+          <div class="insights column gap-10">
+            <span class="block-title"><strong>Analysis</strong></span>
+            ${insightsItems}
+          </div>
+        `
+          : ""
+      }
+    </div>
+  `;
+}
+
+function metricRow(label, value, isMuted = false) {
+  return /*html*/ `
+    <div class="metric-row">
+      <span class="${isMuted ? "muted" : ""}">${label}</span>
+      <span class="${isMuted ? "muted" : "white"}">${value}</span>
+    </div>
+  `;
 }
 
 function buildSeoInsightGroup(title, items, className) {
@@ -76,7 +77,7 @@ function buildSeoInsightGroup(title, items, className) {
 
   return /*html*/ `
     <div class="insight-group ${className}">
-      <strong>${title}</strong>
+      <span class="block-title mt-15"><strong>${title}</strong></span>
       <ul>
         ${items.map((msg) => `<li>${msg}</li>`).join("")}
       </ul>
