@@ -1,4 +1,4 @@
-import { calculateInteractionPerformanceScore } from "../../utils/calculations";
+import { calculateInteractionPerformanceScore } from "../../scoring/calculations";
 
 export function detectInteractionPerformance(pageData) {
   const allElements = pageData.dom.elements || [];

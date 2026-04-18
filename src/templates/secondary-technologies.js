@@ -1,4 +1,4 @@
-import { getConfidenceClass } from "../utils/helpers";
+import { formatType, getConfidenceClass } from "../utils/helpers";
 
 export function renderSecondary(result) {
   const evidenceItems = (result.evidence || []).map((item) => `<li>${item.message}</li>`).join("");
@@ -43,17 +43,4 @@ export function renderSecondaryFallback() {
       </span>
     </div>
   `;
-}
-
-function formatType(type) {
-  switch (type) {
-    case "framework":
-      return "Framework";
-    case "library":
-      return "Library";
-    case "cms":
-      return "CMS";
-    default:
-      return "Other";
-  }
 }

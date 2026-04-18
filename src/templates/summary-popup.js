@@ -17,7 +17,17 @@ export function renderSummary(summary) {
     <div class="result-section"><strong>Quick Overview</strong></div>
     <div class="result-card column gap-20 summary">
       <div class="summary-score">
-        <span class="block-title"><strong>Overall Score</strong></span>
+        <div class="row gap-10 align-center">
+          <span class="block-title"><strong>Overall Score</strong></span>
+          <span class="info-tooltip">
+            ⓘ
+            <span class="tooltip-content">
+              Overall score based on weighted metrics.<br><br>
+              Loading (50%), Interaction (30%), SEO (20%)<br><br>
+              Prioritizes real user experience over technical completeness.
+            </span>
+          </span>
+        </div>
         <span class="score ${getScoreClass(overallScore)}">
           ${overallScore ?? "N/A"}
         </span>

@@ -311,3 +311,40 @@ body.popup #results .result-card {
 .summary-cta:hover {
   cursor: pointer;
 }
+
+.summary-score .block-title {
+  margin-bottom: 0;
+}
+
+.info-tooltip {
+  cursor: pointer;
+  color: #aaa;
+  font-size: 1rem !important;
+  position: relative;
+}
+
+.info-tooltip:hover {
+  color: #fff;
+}
+
+.tooltip-content {
+  position: absolute;
+  bottom: -170px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  background: #1e1e1e;
+  color: #fff;
+  font-size: 0.8rem !important;
+  line-height: 1.4;
+  padding: 10px;
+  border-radius: 10px;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.info-tooltip:hover .tooltip-content {
+  opacity: 1;
+}

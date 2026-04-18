@@ -1,4 +1,4 @@
-import { calculateSeoScore } from "../../utils/calculations";
+import { calculateSeoScore } from "../../scoring/calculations";
 
 export function detectSEO() {
   const insights = [];

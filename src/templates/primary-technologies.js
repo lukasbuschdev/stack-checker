@@ -1,4 +1,4 @@
-import { getConfidenceClass } from "../utils/helpers";
+import { formatType, getConfidenceClass } from "../utils/helpers";
 
 export function renderPrimary(primary, categoryInsights) {
   const evidenceItems = (primary.evidence || []).map((item) => `<li>${item.message}</li>`).join("");
@@ -41,15 +41,14 @@ export function renderPrimary(primary, categoryInsights) {
   `;
 }
 
-function formatType(type) {
-  switch (type) {
-    case "framework":
-      return "Framework";
-    case "library":
-      return "Library";
-    case "cms":
-      return "CMS";
-    default:
-      return "Other";
-  }
+export function renderPrimaryFallback() {
+  return /*html*/ `
+    <div class="result-section"><strong>Primary Technology</strong></div>
+    <div class="result-card column gap-20">
+      <span class="muted">
+        No primary technology detected. No dominant technology detected.<br>
+        This may indicate static HTML, server-rendered content, or a highly optimized setup.
+      </span>
+    </div>
+  `;
 }

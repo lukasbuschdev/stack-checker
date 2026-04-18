@@ -50,3 +50,16 @@ export function initAutoRefresh(tabId, renderFn) {
     }
   });
 }
+
+export function formatType(type) {
+  switch (type) {
+    case "framework":
+      return "Framework";
+    case "library":
+      return "Library";
+    case "cms":
+      return "CMS";
+    default:
+      return "Other";
+  }
+}

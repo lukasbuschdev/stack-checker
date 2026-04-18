@@ -1,4 +1,4 @@
-import { calculateLoadingPerformanceScore } from "../../utils/calculations";
+import { calculateLoadingPerformanceScore } from "../../scoring/calculations";
 
 let metrics = {
   lcp: null,

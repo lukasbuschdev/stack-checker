@@ -1,7 +1,7 @@
 import { renderCDN } from "../templates/cdn";
 import { renderInteraction } from "../templates/interaction-performance";
 import { renderLoading } from "../templates/loading-performance";
-import { renderPrimary } from "../templates/primary-technologies";
+import { renderPrimary, renderPrimaryFallback } from "../templates/primary-technologies";
 import { renderRenderingStrategy } from "../templates/rendering";
 import { renderSecondary, renderSecondaryFallback } from "../templates/secondary-technologies";
 import { renderSEO } from "../templates/seo";
@@ -25,11 +25,9 @@ if (!tabId) {
 
 function renderDashboard(data) {
   const { primary, secondary, rendering, cdn, performance, seo, summary } = data || {};
-
+  const { categoryInsights } = processTechnologyData(primary || null, secondary || []);
   const loading = performance?.loading || null;
   const interaction = performance?.interaction || null;
-
-  const { categoryInsights } = processTechnologyData(primary || null, secondary || []);
 
   let html = "";
 
@@ -37,7 +35,11 @@ function renderDashboard(data) {
   if (loading) html += renderLoading(loading);
   if (interaction) html += renderInteraction(interaction);
   if (seo && seo.data) html += renderSEO(seo);
-  if (primary) html += renderPrimary(primary, categoryInsights);
+  if (primary) {
+    html += renderPrimary(primary, categoryInsights);
+  } else {
+    html += renderPrimaryFallback();
+  }
 
   if (secondary && secondary.length) {
     html += /*html*/ `

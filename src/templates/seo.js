@@ -21,37 +21,39 @@ export function renderSEO(seo) {
     ${buildSeoInsightGroup("Good Signals", groupedInsights.good, "good")}
   `;
 
+  const h1Count = headings?.h1 ?? 0;
+
   return /*html*/ `
     <div class="result-section"><strong>SEO</strong></div>
     <div class="result-card column gap-30">
       <div class="metric-block">
         <span class="block-title">Structure</span>
-        ${metricRow("Title", title ? truncateUrl(title, 50) : "missing", !title)}
-        ${metricRow("Description", description ? truncateUrl(description, 70) : "missing", !description)}
-        ${metricRow("Lang", lang ?? "missing", !lang)}
-        ${metricRow("Canonical", canonical ? "set" : "missing", !canonical)}
+        ${metricRow("Title", title ? truncateUrl(title, 50) : "missing", title ? "good" : "critical")}
+        ${metricRow("Description", description ? truncateUrl(description, 70) : "missing", description ? "good" : "critical")}
+        ${metricRow("Lang", lang ?? "missing", lang ? "good" : "warning")}
+        ${metricRow("Canonical", canonical ? "set" : "missing", canonical ? "good" : "warning")}
       </div>
 
       <div class="metric-block">
         <span class="block-title">Headings & Content</span>
-        ${metricRow("H1", headings?.h1 ?? 0)}
-        ${metricRow("H2", headings?.h2 ?? 0)}
-        ${metricRow("Images", `${images?.total ?? 0} (${images?.missingAlt ?? 0} missing alt)`)}
+        ${metricRow("H1", h1Count, h1Count === 1 ? "good" : h1Count === 0 ? "critical" : "warning")}
+        ${metricRow("H2", headings?.h2 ?? 0, "good")}
+        ${metricRow("Images", `${images?.total ?? 0} (${images?.missingAlt ?? 0} missing alt)`, (images?.missingAlt ?? 0) > 0 ? "warning" : "good")}
       </div>
 
       <div class="metric-block">
         <span class="block-title">Meta & Social</span>
-        ${metricRow("Viewport", meta?.viewport ? "set" : "missing", !meta?.viewport)}
-        ${metricRow("Open Graph", meta?.openGraph ?? 0)}
-        ${metricRow("Twitter", meta?.twitter ?? 0)}
-        ${metricRow("Robots", meta?.robots || "index", meta?.robots?.includes("noindex"))}
-        ${metricRow("Structured Data", meta?.structuredData ?? 0, (meta?.structuredData ?? 0) === 0)}
+        ${metricRow("Viewport", meta?.viewport ? "set" : "missing", meta?.viewport ? "good" : "critical")}
+        ${metricRow("Open Graph", meta?.openGraph ?? 0, (meta?.openGraph ?? 0) > 0 ? "good" : "warning")}
+        ${metricRow("Twitter", meta?.twitter ?? 0, (meta?.twitter ?? 0) > 0 ? "good" : "warning")}
+        ${metricRow("Robots", meta?.robots || "index", meta?.robots?.includes("noindex") ? "critical" : "good")}
+        ${metricRow("Structured Data", meta?.structuredData ?? 0, (meta?.structuredData ?? 0) === 0 ? "warning" : "good")}
       </div>
 
       <div class="metric-block">
         <span class="block-title">Linking</span>
-        ${metricRow("Internal Links", seo.data.links?.internal ?? 0)}
-        ${metricRow("External Links", seo.data.links?.external ?? 0, (seo.data.links?.external ?? 0) === 0)}
+        ${metricRow("Internal Links", seo.data.links?.internal ?? 0, (seo.data.links?.internal ?? 0) < 3 ? "warning" : "good")}
+        ${metricRow("External Links", seo.data.links?.external ?? 0, (seo.data.links?.external ?? 0) === 0 ? "warning" : "good")}
       </div>
 
       ${
@@ -68,11 +70,11 @@ export function renderSEO(seo) {
   `;
 }
 
-function metricRow(label, value, isBad = false) {
+function metricRow(label, value, level = "good") {
   return /*html*/ `
     <div class="metric-row">
       <span>${label}</span>
-      <span class="metric ${isBad ? "warning" : "good"}">
+      <span class="metric ${level}">
         ${value}
       </span>
     </div>

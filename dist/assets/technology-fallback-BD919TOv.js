@@ -5,7 +5,7 @@
         ${t.map(e=>`<li>${e}</li>`).join(``)}
       </ul>
     </div>
-  `}function t(e,t=40){return e?e.length>t?e.slice(0,t)+`...`:e:``}function n(e){return e==null?``:e>=85?`good`:e>=60?`warning`:`critical`}function r(e){return e>=85?`good`:e>=60?`warning`:`critical`}function i(e,t){let n=0,r=setInterval(()=>{chrome.storage.local.get(`stackResults_${e}`,n=>{t(n[`stackResults_${e}`]||{})}),n++,n>=5&&clearInterval(r)},1e3);chrome.storage.onChanged.addListener((n,r)=>{if(r!==`local`)return;let i=`stackResults_${e}`;n[i]&&t(n[i].newValue||{})})}function a(){return`
+  `}function t(e,t=40){return e?e.length>t?e.slice(0,t)+`...`:e:``}function n(e){return e==null?``:e>=85?`good`:e>=60?`warning`:`critical`}function r(e){return e>=85?`good`:e>=60?`warning`:`critical`}function i(e,t){let n=0,r=setInterval(()=>{chrome.storage.local.get(`stackResults_${e}`,n=>{t(n[`stackResults_${e}`]||{})}),n++,n>=5&&clearInterval(r)},1e3);chrome.storage.onChanged.addListener((n,r)=>{if(r!==`local`)return;let i=`stackResults_${e}`;n[i]&&t(n[i].newValue||{})})}function a(e){switch(e){case`framework`:return`Framework`;case`library`:return`Library`;case`cms`:return`CMS`;default:return`Other`}}function o(){return`
     <div class="result-section"><strong>Analysis</strong></div>
     <div class="result-card column gap-20">
       <div class="metric-block">
@@ -16,4 +16,4 @@
         </span>
       </div>
     </div>
-  `}export{i as a,n as i,e as n,t as o,r,a as t};
+  `}export{n as a,r as i,e as n,i as o,a as r,t as s,o as t};

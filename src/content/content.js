@@ -2,11 +2,10 @@ import { scanDOM } from "./dom-scan.js";
 import { scanScripts } from "./script-scan.js";
 import { scanGlobals } from "./global-scan.js";
 import { scanMeta } from "./meta-scan.js";
-
 import { DETECTORS } from "../detectors/detectors.js";
-
 import { buildFallbackInsights } from "../detectors/fallback/fallback.js";
 import { evaluateDetection } from "../scoring/confidence-engine.js";
+import { calculateOverallScore } from "../scoring/calculations.js";
 
 const priority = {
   cms: 3,
@@ -51,10 +50,14 @@ function runDetection() {
 
   let overallScore = null;
 
-  const scores = [loadingPerformanceScore, interactionPerformanceScore, seoScore].filter((s) => s != null);
+  const scores = {
+    loading: loadingPerformanceScore,
+    interaction: interactionPerformanceScore,
+    seo: seoScore,
+  };
 
-  if (scores.length > 0) {
-    overallScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+  if (scores.loading != null || scores.interaction != null || scores.seo != null) {
+    overallScore = calculateOverallScore(scores);
   }
 
   const levelPriority = {

@@ -1,9 +1,19 @@
-import{a as e,i as t,t as n}from"./assets/technology-fallback-DXVk9RF2.js";function r(e){let{loadingPerformanceScore:n,interactionPerformanceScore:r,seoScore:a,overallScore:o,topIssues:s,primaryDetected:c}=e,l={critical:0,warning:0};return(s||[]).forEach(e=>{e.level===`critical`&&l.critical++,e.level===`warning`&&l.warning++}),`
+import{a as e,o as t,t as n}from"./assets/technology-fallback-BD919TOv.js";function r(t){let{loadingPerformanceScore:n,interactionPerformanceScore:r,seoScore:a,overallScore:o,topIssues:s,primaryDetected:c}=t,l={critical:0,warning:0};return(s||[]).forEach(e=>{e.level===`critical`&&l.critical++,e.level===`warning`&&l.warning++}),`
     <div class="result-section"><strong>Quick Overview</strong></div>
     <div class="result-card column gap-20 summary">
       <div class="summary-score">
-        <span class="block-title"><strong>Overall Score</strong></span>
-        <span class="score ${t(o)}">
+        <div class="row gap-10 align-center">
+          <span class="block-title"><strong>Overall Score</strong></span>
+          <span class="info-tooltip">
+            ⓘ
+            <span class="tooltip-content">
+              Overall score based on weighted metrics.<br><br>
+              Loading (50%), Interaction (30%), SEO (20%)<br><br>
+              Prioritizes real user experience over technical completeness.
+            </span>
+          </span>
+        </div>
+        <span class="score ${e(o)}">
           ${o??`N/A`}
         </span>
       </div>
@@ -27,11 +37,11 @@ import{a as e,i as t,t as n}from"./assets/technology-fallback-DXVk9RF2.js";funct
         <span class="muted">View full analysis →</span>
       </div>
     </div>
-  `}function i(e,n){return`
+  `}function i(t,n){return`
     <div class="mini-metric column gap-10">
-      <span class="muted">${e}</span>
-      <span class="score ${t(n)}">
+      <span class="muted">${t}</span>
+      <span class="score ${e(n)}">
         ${n??`N/A`}
       </span>
     </div>
-  `}var a=document.getElementById(`results`);chrome.tabs.query({active:!0,currentWindow:!0},t=>{let n=t[0];if(!n?.id){o({});return}chrome.storage.local.get(`stackResults_${n.id}`,t=>{o(t[`stackResults_${n.id}`]||{}),e(n.id,o)})});function o(e){let{summary:t}=e||{},i={...t,primaryDetected:!!e.primary},o=``;t&&(o+=r(i)),o||=n(),a.innerHTML=o,s()}function s(){let e=document.getElementById(`open-dashboard-btn`);e&&e.addEventListener(`click`,()=>{chrome.tabs.query({active:!0,currentWindow:!0},e=>{let t=e[0];t?.id&&chrome.tabs.create({url:chrome.runtime.getURL(`src/dashboard/dashboard.html?tabId=${t.id}`)})})})}
+  `}var a=document.getElementById(`results`);chrome.tabs.query({active:!0,currentWindow:!0},e=>{let n=e[0];if(!n?.id){o({});return}chrome.storage.local.get(`stackResults_${n.id}`,e=>{o(e[`stackResults_${n.id}`]||{}),t(n.id,o)})});function o(e){let{summary:t}=e||{},i={...t,primaryDetected:!!e.primary},o=``;t&&(o+=r(i)),o||=n(),a.innerHTML=o,s()}function s(){let e=document.getElementById(`open-dashboard-btn`);e&&e.addEventListener(`click`,()=>{chrome.tabs.query({active:!0,currentWindow:!0},e=>{let t=e[0];t?.id&&chrome.tabs.create({url:chrome.runtime.getURL(`src/dashboard/dashboard.html?tabId=${t.id}`)})})})}
