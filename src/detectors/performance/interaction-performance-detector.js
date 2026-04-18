@@ -1,3 +1,5 @@
+import { calculateInteractionPerformanceScore } from "../../utils/calculations";
+
 export function detectInteractionPerformance(pageData) {
   const allElements = pageData.dom.elements || [];
 
@@ -101,7 +103,7 @@ export function detectInteractionPerformance(pageData) {
   };
 
   const { insights } = getInsights(data);
-  const score = calculateVisualComplexity(data);
+  const score = calculateInteractionPerformanceScore(data);
 
   return {
     name: "Interaction Performance",
@@ -124,13 +126,13 @@ export function getInsights(data) {
     score -= 20;
     evidence.push({
       type: "medium",
-      message: `High number of animated elements (${animatedCount}). Consider reducing animations.`,
+      message: `High number of animated elements (${animatedCount}). This increases main thread workload and can cause frame drops. Reduce non-essential animations, especially those running continuously or on large elements.`,
     });
   } else if (animatedCount > 15) {
     score -= 10;
     evidence.push({
       type: "weak",
-      message: `Multiple animations detected (${animatedCount}). Ensure smooth performance.`,
+      message: `Multiple animations detected (${animatedCount}). Verify they are short, purposeful, and not running simultaneously across large sections of the page.`,
     });
   }
 
@@ -138,13 +140,13 @@ export function getInsights(data) {
     score -= 25;
     evidence.push({
       type: "strong",
-      message: `Expensive properties are animated. Prefer transform and opacity.`,
+      message: `Animations use paint-heavy properties (e.g. box-shadow, filter, backdrop-filter). These trigger expensive repaints. Replace with transform/opacity or limit usage to small elements.`,
     });
   } else if (expensiveAnimationCount > 3) {
     score -= 15;
     evidence.push({
       type: "medium",
-      message: `Some animations use costly properties. Optimize if possible.`,
+      message: `Some animations rely on costly CSS properties. Check if they can be replaced with transform or opacity to improve rendering performance.`,
     });
   }
 
@@ -152,7 +154,7 @@ export function getInsights(data) {
     score += 5;
     evidence.push({
       type: "positive",
-      message: `Supports reduced-motion preferences (good accessibility practice).`,
+      message: `Supports prefers-reduced-motion. This improves accessibility and reduces unnecessary animations for users who opt out.`,
     });
   }
 
@@ -160,7 +162,7 @@ export function getInsights(data) {
     score -= 15;
     evidence.push({
       type: "medium",
-      message: `Hover interactions lack mobile fallback.`,
+      message: `Hover interactions detected without mobile fallback. Touch devices cannot trigger :hover. Add alternatives using click, focus, or media queries like (hover: none).`,
     });
   }
 
@@ -168,7 +170,7 @@ export function getInsights(data) {
     score -= 10;
     evidence.push({
       type: "weak",
-      message: `Many fixed elements may affect scroll performance.`,
+      message: `Many fixed-position elements (${fixedCount}). This can increase repaint cost during scrolling. Limit fixed elements or simplify their styles (avoid shadows, filters).`,
     });
   }
 
@@ -176,7 +178,7 @@ export function getInsights(data) {
     score -= 10;
     evidence.push({
       type: "medium",
-      message: `High number of expensive visual effects (${totalExpensiveEffects}). Consider reducing heavy styles.`,
+      message: `High number of heavy visual effects (${totalExpensiveEffects}) such as shadows, filters, or backdrop filters. These increase paint cost. Reduce usage or apply them only to small, isolated elements.`,
     });
   }
 
@@ -184,14 +186,14 @@ export function getInsights(data) {
     score -= 15;
     evidence.push({
       type: "strong",
-      message: `Layout-triggering animations detected. Prefer transform and opacity for smoother performance.`,
+      message: `Animations are modifying layout properties (e.g. width, height, margin). This triggers layout recalculation and causes jank. Replace with transform (scale, translate) for smooth animations.`,
     });
   }
 
   if (gpuFriendlyAnimationCount > 0 && layoutAnimationCount === 0) {
     evidence.push({
       type: "good",
-      message: `Animations use GPU-friendly properties (transform/opacity).`,
+      message: `Animations use GPU-friendly properties (transform, opacity). This avoids layout recalculations and results in smoother performance.`,
     });
   }
 
@@ -199,7 +201,7 @@ export function getInsights(data) {
     score -= 5;
     evidence.push({
       type: "weak",
-      message: `Many gradient backgrounds detected (${gradientCount}). May increase paint cost on large surfaces.`,
+      message: `Many gradient backgrounds detected (${gradientCount}). Large gradients increase paint cost, especially during scroll. Avoid applying them to large or frequently repainted areas.`,
     });
   }
 
@@ -210,22 +212,4 @@ export function getInsights(data) {
       source: "Interaction",
     })),
   };
-}
-
-function calculateVisualComplexity(data) {
-  let score = 100;
-
-  const { boxShadowCount, filterCount, backdropFilterCount, gradientCount, animatedCount, layoutAnimationCount } = data;
-  const totalExpensiveEffects = boxShadowCount + filterCount * 2 + backdropFilterCount * 3 + gradientCount * 0.5;
-
-  if (totalExpensiveEffects > 80) score -= 25;
-  else if (totalExpensiveEffects > 40) score -= 15;
-  else if (totalExpensiveEffects > 20) score -= 8;
-
-  if (animatedCount > 40) score -= 15;
-  else if (animatedCount > 20) score -= 8;
-
-  if (layoutAnimationCount > 5) score -= 15;
-
-  return Math.max(0, Math.round(score));
 }

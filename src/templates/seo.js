@@ -26,7 +26,6 @@ export function renderSEO(seo) {
     <div class="result-card column gap-30">
       <div class="metric-block">
         <span class="block-title">Structure</span>
-
         ${metricRow("Title", title ? truncateUrl(title, 50) : "missing", !title)}
         ${metricRow("Description", description ? truncateUrl(description, 70) : "missing", !description)}
         ${metricRow("Lang", lang ?? "missing", !lang)}
@@ -35,7 +34,6 @@ export function renderSEO(seo) {
 
       <div class="metric-block">
         <span class="block-title">Headings & Content</span>
-
         ${metricRow("H1", headings?.h1 ?? 0)}
         ${metricRow("H2", headings?.h2 ?? 0)}
         ${metricRow("Images", `${images?.total ?? 0} (${images?.missingAlt ?? 0} missing alt)`)}
@@ -43,17 +41,24 @@ export function renderSEO(seo) {
 
       <div class="metric-block">
         <span class="block-title">Meta & Social</span>
-
         ${metricRow("Viewport", meta?.viewport ? "set" : "missing", !meta?.viewport)}
         ${metricRow("Open Graph", meta?.openGraph ?? 0)}
         ${metricRow("Twitter", meta?.twitter ?? 0)}
+        ${metricRow("Robots", meta?.robots || "index", meta?.robots?.includes("noindex"))}
+        ${metricRow("Structured Data", meta?.structuredData ?? 0, (meta?.structuredData ?? 0) === 0)}
+      </div>
+
+      <div class="metric-block">
+        <span class="block-title">Linking</span>
+        ${metricRow("Internal Links", seo.data.links?.internal ?? 0)}
+        ${metricRow("External Links", seo.data.links?.external ?? 0, (seo.data.links?.external ?? 0) === 0)}
       </div>
 
       ${
         insightsItems.trim()
           ? /*html*/ `
           <div class="insights column gap-10">
-            <span class="block-title"><strong>Analysis</strong></span>
+            <span class="block-title"><strong>SEO Analysis</strong></span>
             ${insightsItems}
           </div>
         `
@@ -63,11 +68,13 @@ export function renderSEO(seo) {
   `;
 }
 
-function metricRow(label, value, isMuted = false) {
+function metricRow(label, value, isBad = false) {
   return /*html*/ `
     <div class="metric-row">
-      <span class="${isMuted ? "muted" : ""}">${label}</span>
-      <span class="${isMuted ? "muted" : "white"}">${value}</span>
+      <span>${label}</span>
+      <span class="metric ${isBad ? "warning" : "good"}">
+        ${value}
+      </span>
     </div>
   `;
 }

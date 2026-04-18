@@ -68,36 +68,43 @@ import{a as e,i as t,n,o as r,r as i,t as a}from"./assets/technology-fallback-DX
       <span>${e}</span>
       <span class="metric ${i}">${t}</span>
     </div>
-  `}function d(e){let{coreWebVitals:t,bundleAnalysis:i,renderBlocking:a}=e.data,o=t?.lcp?f(`LCP`,t.lcp.value,p(t.lcp.raw),`(${t.lcp.rating})`):f(`LCP`,`analyzing...`,``,``,!0),s=t?.cls?f(`CLS`,t.cls.value,m(t.cls.raw),`(${t.cls.rating})`):f(`CLS`,`analyzing...`,``,``,!0),c=i?.totalJSSize?f(`Total JS size`,i.totalJSSize.value,h(i.totalJSSize.raw)):f(`Total JS size`,`not available`,``,``,!0),l=i?.jsFileCount===void 0?f(`JS files`,`not available`,``,``,!0):f(`JS files`,i.jsFileCount,g(i.jsFileCount)),u=i?.largestScript?f(`Largest script`,`${r(y(i.largestScript.name))} (${i.largestScript.size})`):f(`Largest script`,`not available`,``,``,!0),d=a?f(`Blocking CSS`,a.blockingCSS,_(a.blockingCSS)):f(`Blocking CSS`,`not available`,``,``,!0),b=a?f(`Sync scripts in head`,a.syncScriptsInHead,v(a.syncScriptsInHead)):f(`Sync scripts`,`not available`,``,``,!0),x={critical:[],warning:[],good:[]};(e.insights||[]).forEach(e=>{x[e.level]&&x[e.level].push(e.message)});let S=`
-    ${n(`Critical Issues`,x.critical,`critical`)}
-    ${n(`Warnings`,x.warning,`warning`)}
-    ${n(`Good Signals`,x.good,`good`)}
+  `}function d(e){let{coreWebVitals:t,bundleAnalysis:i,renderBlocking:a}=e.data,o=i?.imageMetrics,s=t?.lcp?f(`LCP`,t.lcp.value,p(t.lcp.raw),`(${t.lcp.rating})`):f(`LCP`,`analyzing...`,``,``,!0),c=t?.cls?f(`CLS`,t.cls.value,m(t.cls.raw),`(${t.cls.rating})`):f(`CLS`,`analyzing...`,``,``,!0),l=i?.totalJSSize?f(`Total JS size`,i.totalJSSize.value,h(i.totalJSSize.raw)):f(`Total JS size`,`not available`,``,``,!0),u=i?.jsFileCount===void 0?f(`JS files`,`not available`,``,``,!0):f(`JS files`,i.jsFileCount,g(i.jsFileCount)),d=i?.largestScript?f(`Largest script`,`${r(C(i?.largestScript?.name))} (${i.largestScript.size})`):f(`Largest script`,`not available`,``,``,!0),w=a?f(`Blocking CSS`,a.blockingCSS,_(a.blockingCSS)):f(`Blocking CSS`,`not available`,``,``,!0),T=a?f(`Sync scripts in head`,a.syncScriptsInHead,v(a.syncScriptsInHead)):f(`Sync scripts`,`not available`,``,``,!0),E=o?.imageCount===void 0?f(`Images`,`not available`,``,``,!0):f(`Images`,o.imageCount,x(o.imageCount)),D=o?.totalImageSize?f(`Total image size`,S(o.totalImageSize),y(o.totalImageSize)):f(`Total image size`,`not available`,``,``,!0),O=o?.largestImage?f(`Largest image`,`${r(C(o.largestImage.name))} (${S(o.largestImage.size)})`,b(o.largestImage.size)):f(`Largest image`,`not available`,``,``,!0),k={critical:[],warning:[],good:[]};(e.insights||[]).forEach(e=>{k[e.level]&&k[e.level].push(e.message)});let A=`
+    ${n(`Critical Issues`,k.critical,`critical`)}
+    ${n(`Warnings`,k.warning,`warning`)}
+    ${n(`Good Signals`,k.good,`good`)}
   `;return`
     <div class="result-section"><strong>Loading Performance</strong></div>
     <div class="result-card column gap-30">
       <div class="metric-block">
         <span class="block-title">Core Web Vitals</span>
-        ${o}
         ${s}
+        ${c}
       </div>
 
       <div class="metric-block">
-        <span class="block-title">Bundle Analysis</span>
-        ${c}
+        <span class="block-title">JavaScript Analysis</span>
         ${l}
         ${u}
+        ${d}
       </div>
 
       <div class="metric-block">
         <span class="block-title">Render Blocking</span>
-        ${d}
-        ${b}
+        ${w}
+        ${T}
       </div>
 
-      ${S.trim()?`
+      <div class="metric-block">
+        <span class="block-title">Image Analysis</span>
+        ${E}
+        ${D}
+        ${O}
+      </div>
+
+      ${A.trim()?`
           <div class="insights column gap-10">
             <span class="block-title mt-15"><strong>Analysis</strong></span>
-            ${S}
+            ${A}
           </div>
         `:``}
     </div>
@@ -108,12 +115,12 @@ import{a as e,i as t,n,o as r,r as i,t as a}from"./assets/technology-fallback-DX
         ${t} ${r||``}
       </span>
     </div>
-  `}function p(e){if(e==null)return``;let t=e/1e3;return t<=1.8?`good`:t<=3?`warning`:`critical`}function m(e){return e==null?``:e<=.1?`good`:e<=.25?`warning`:`critical`}function h(e){if(e==null)return``;let t=e/1024;return t<150?`good`:t<400?`warning`:`critical`}function g(e){return e<10?`good`:e<25?`warning`:`critical`}function _(e){return e===0?`good`:e<=2?`warning`:`critical`}function v(e){return e===0?`good`:e<=2?`warning`:`critical`}function y(e){try{return e.split(`/`).pop().split(`?`)[0]}catch{return e}}function b(e,t){let n=(e.evidence||[]).map(e=>`<li>${e.message}</li>`).join(``),r=[...e.insights||[],...t].map(e=>`<li>${e}</li>`).join(``);return`
+  `}function p(e){if(e==null)return``;let t=e/1e3;return t<=1.8?`good`:t<=3?`warning`:`critical`}function m(e){return e==null?``:e<=.1?`good`:e<=.25?`warning`:`critical`}function h(e){if(e==null)return``;let t=e/1024;return t<150?`good`:t<400?`warning`:`critical`}function g(e){return e<10?`good`:e<25?`warning`:`critical`}function _(e){return e===0?`good`:e<=2?`warning`:`critical`}function v(e){return e===0?`good`:e<=2?`warning`:`critical`}function y(e){if(e==null)return``;let t=e/1024;return t<800?`good`:t<1500?`warning`:`critical`}function b(e){if(e==null)return``;let t=e/1024;return t<200?`good`:t<400?`warning`:`critical`}function x(e){return e<20?`good`:e<50?`warning`:`critical`}function S(e){if(!e||e===0)return`0 KB`;let t=e/1024;return t<1024?`${t.toFixed(1)} KB`:`${(t/1024).toFixed(2)} MB`}function C(e){try{return e.split(`/`).pop().split(`?`)[0]}catch{return e}}function w(e,t){let n=(e.evidence||[]).map(e=>`<li>${e.message}</li>`).join(``),r=[...e.insights||[],...t].map(e=>`<li>${e}</li>`).join(``);return`
     <div class="result-section"><strong>Primary Technology</strong></div>
     <div class="result-card column gap-30">
       <div class="result-header">
         <span>
-          <strong>[${x(e.type)}]</strong>
+          <strong>[${T(e.type)}]</strong>
           ${e.name}
         </span>
         <span class="metric ${i(e.confidence)}">
@@ -134,12 +141,12 @@ import{a as e,i as t,n,o as r,r as i,t as a}from"./assets/technology-fallback-DX
           </div>
         `:``}
     </div>
-  `}function x(e){switch(e){case`framework`:return`Framework`;case`library`:return`Library`;case`cms`:return`CMS`;default:return`Other`}}function S(e){let t=(e.evidence||[]).map(e=>`<li>${e.message}</li>`).join(``);return`
+  `}function T(e){switch(e){case`framework`:return`Framework`;case`library`:return`Library`;case`cms`:return`CMS`;default:return`Other`}}function E(e){let t=(e.evidence||[]).map(e=>`<li>${e.message}</li>`).join(``);return`
     <div class="result-section"><strong>Rendering Strategy</strong></div>
     <div class="result-card column gap-30">
       <div class="result-header">
         <span>
-          <strong>${C(e.strategy)}</strong>
+          <strong>${D(e.strategy)}</strong>
         </span>
         <span class="metric ${i(e.confidence)}">
           ${e.confidence}%
@@ -151,11 +158,11 @@ import{a as e,i as t,n,o as r,r as i,t as a}from"./assets/technology-fallback-DX
         ${t?`<ul>${t}</ul>`:`<span class="muted">No clear rendering evidence found</span>`}
       </div>
     </div>
-  `}function C(e){switch(e){case`SSR`:return`Server-side Rendering (SSR)`;case`SSG`:return`Static Site Generation (SSG)`;case`CSR`:return`Client-side Rendering (CSR)`;default:return`Unknown`}}function w(e){let t=(e.evidence||[]).map(e=>`<li>${e.message}</li>`).join(``),n=(e.insights||[]).map(e=>`<li>${e}</li>`).join(``);return`
+  `}function D(e){switch(e){case`SSR`:return`Server-side Rendering (SSR)`;case`SSG`:return`Static Site Generation (SSG)`;case`CSR`:return`Client-side Rendering (CSR)`;default:return`Unknown`}}function O(e){let t=(e.evidence||[]).map(e=>`<li>${e.message}</li>`).join(``),n=(e.insights||[]).map(e=>`<li>${e}</li>`).join(``);return`
     <div class="result-card column gap-30">
       <div class="result-header">
         <span>
-          <strong>[${E(e.type)}]</strong>
+          <strong>[${A(e.type)}]</strong>
           ${e.name}
         </span>
         <span class="metric ${i(e.confidence)}">
@@ -175,64 +182,71 @@ import{a as e,i as t,n,o as r,r as i,t as a}from"./assets/technology-fallback-DX
           </div>
         `:``}
     </div>
-  `}function T(){return`
+  `}function k(){return`
     <div class="result-card column gap-20">
       <span class="muted">
         No additional technologies detected. This may indicate a minimal or highly optimized setup.
       </span>
     </div>
-  `}function E(e){switch(e){case`framework`:return`Framework`;case`library`:return`Library`;case`cms`:return`CMS`;default:return`Other`}}function D(e){let{title:t,description:n,canonical:i,lang:a,headings:o,images:s,meta:c}=e.data,l={critical:[],warning:[],good:[]};(e.insights||[]).forEach(e=>{l[e.level]&&l[e.level].push(e.message)});let u=`
-    ${k(`Critical Issues`,l.critical,`critical`)}
-    ${k(`Warnings`,l.warning,`warning`)}
-    ${k(`Good Signals`,l.good,`good`)}
+  `}function A(e){switch(e){case`framework`:return`Framework`;case`library`:return`Library`;case`cms`:return`CMS`;default:return`Other`}}function j(e){let{title:t,description:n,canonical:i,lang:a,headings:o,images:s,meta:c}=e.data,l={critical:[],warning:[],good:[]};(e.insights||[]).forEach(e=>{l[e.level]&&l[e.level].push(e.message)});let u=`
+    ${N(`Critical Issues`,l.critical,`critical`)}
+    ${N(`Warnings`,l.warning,`warning`)}
+    ${N(`Good Signals`,l.good,`good`)}
   `;return`
     <div class="result-section"><strong>SEO</strong></div>
     <div class="result-card column gap-30">
       <div class="metric-block">
         <span class="block-title">Structure</span>
-
-        ${O(`Title`,t?r(t,50):`missing`,!t)}
-        ${O(`Description`,n?r(n,70):`missing`,!n)}
-        ${O(`Lang`,a??`missing`,!a)}
-        ${O(`Canonical`,i?`set`:`missing`,!i)}
+        ${M(`Title`,t?r(t,50):`missing`,!t)}
+        ${M(`Description`,n?r(n,70):`missing`,!n)}
+        ${M(`Lang`,a??`missing`,!a)}
+        ${M(`Canonical`,i?`set`:`missing`,!i)}
       </div>
 
       <div class="metric-block">
         <span class="block-title">Headings & Content</span>
-
-        ${O(`H1`,o?.h1??0)}
-        ${O(`H2`,o?.h2??0)}
-        ${O(`Images`,`${s?.total??0} (${s?.missingAlt??0} missing alt)`)}
+        ${M(`H1`,o?.h1??0)}
+        ${M(`H2`,o?.h2??0)}
+        ${M(`Images`,`${s?.total??0} (${s?.missingAlt??0} missing alt)`)}
       </div>
 
       <div class="metric-block">
         <span class="block-title">Meta & Social</span>
+        ${M(`Viewport`,c?.viewport?`set`:`missing`,!c?.viewport)}
+        ${M(`Open Graph`,c?.openGraph??0)}
+        ${M(`Twitter`,c?.twitter??0)}
+        ${M(`Robots`,c?.robots||`index`,c?.robots?.includes(`noindex`))}
+        ${M(`Structured Data`,c?.structuredData??0,(c?.structuredData??0)===0)}
+      </div>
 
-        ${O(`Viewport`,c?.viewport?`set`:`missing`,!c?.viewport)}
-        ${O(`Open Graph`,c?.openGraph??0)}
-        ${O(`Twitter`,c?.twitter??0)}
+      <div class="metric-block">
+        <span class="block-title">Linking</span>
+        ${M(`Internal Links`,e.data.links?.internal??0)}
+        ${M(`External Links`,e.data.links?.external??0,(e.data.links?.external??0)===0)}
       </div>
 
       ${u.trim()?`
           <div class="insights column gap-10">
-            <span class="block-title"><strong>Analysis</strong></span>
+            <span class="block-title"><strong>SEO Analysis</strong></span>
             ${u}
           </div>
         `:``}
     </div>
-  `}function O(e,t,n=!1){return`
+  `}function M(e,t,n=!1){return`
     <div class="metric-row">
-      <span class="${n?`muted`:``}">${e}</span>
-      <span class="${n?`muted`:`white`}">${t}</span>
+      <span>${e}</span>
+      <span class="metric ${n?`warning`:`good`}">
+        ${t}
+      </span>
     </div>
-  `}function k(e,t,n){return t.length?`
+  `}function N(e,t,n){return t.length?`
     <div class="insight-group ${n}">
       <span class="block-title mt-15"><strong>${e}</strong></span>
       <ul>
         ${t.map(e=>`<li>${e}</li>`).join(``)}
       </ul>
     </div>
-  `:``}function A(e){let{loadingPerformanceScore:n,interactionPerformanceScore:r,seoScore:i,overallScore:a,topIssues:o}=e,s={critical:2,warning:1},c=(o||[]).sort((e,t)=>s[t.level]-s[e.level]).slice(0,3).map(e=>`
+  `:``}function P(e){let{loadingPerformanceScore:n,interactionPerformanceScore:r,seoScore:i,overallScore:a,topIssues:o}=e,s={critical:2,warning:1},c=(o||[]).sort((e,t)=>s[t.level]-s[e.level]).slice(0,3).map(e=>`
         <li>
           <span class="${e.level}">[${e.source}]</span>
           ${e.message}
@@ -288,10 +302,10 @@ import{a as e,i as t,n,o as r,r as i,t as a}from"./assets/technology-fallback-DX
         </div>
       `:``}
     </div>
-  `}function j(e,t){let n=[];return e&&n.push(e.type),t?.length&&t.forEach(e=>n.push(e.type)),{categoryInsights:M({hasFramework:n.includes(`framework`),hasCMS:n.includes(`cms`),hasLibrary:n.includes(`library`)})}}function M({hasFramework:e,hasCMS:t,hasLibrary:n}){let r=[];return!e&&!t?r.push(`No framework or CMS detected`):(e||r.push(`No frontend framework detected`),t||r.push(`No CMS detected`)),!n&&!e&&!t&&r.push(`No major frontend libraries detected`),r}var N=document.getElementById(`dashboard-results`),P=new URLSearchParams(window.location.search).get(`tabId`);P?chrome.storage.local.get(`stackResults_${P}`,t=>{F(t[`stackResults_${P}`]||{}),e(P,F)}):N.innerHTML=`<span>No data available</span>`;function F(e){let{primary:t,secondary:n,rendering:r,cdn:i,performance:s,seo:c,summary:u}=e||{},f=s?.loading||null,p=s?.interaction||null,{categoryInsights:m}=j(t||null,n||[]),h=``;u&&(h+=A(u)),f&&(h+=d(f)),p&&(h+=l(p)),c&&c.data&&(h+=D(c)),t&&(h+=b(t,m)),n&&n.length?h+=`
+  `}function F(e,t){let n=[];return e&&n.push(e.type),t?.length&&t.forEach(e=>n.push(e.type)),{categoryInsights:I({hasFramework:n.includes(`framework`),hasCMS:n.includes(`cms`),hasLibrary:n.includes(`library`)})}}function I({hasFramework:e,hasCMS:t,hasLibrary:n}){let r=[];return!e&&!t?r.push(`No framework or CMS detected`):(e||r.push(`No frontend framework detected`),t||r.push(`No CMS detected`)),!n&&!e&&!t&&r.push(`No major frontend libraries detected`),r}var L=document.getElementById(`dashboard-results`),R=new URLSearchParams(window.location.search).get(`tabId`);R?chrome.storage.local.get(`stackResults_${R}`,t=>{z(t[`stackResults_${R}`]||{}),e(R,z)}):L.innerHTML=`<span>No data available</span>`;function z(e){let{primary:t,secondary:n,rendering:r,cdn:i,performance:s,seo:c,summary:u}=e||{},f=s?.loading||null,p=s?.interaction||null,{categoryInsights:m}=F(t||null,n||[]),h=``;u&&(h+=P(u)),f&&(h+=d(f)),p&&(h+=l(p)),c&&c.data&&(h+=j(c)),t&&(h+=w(t,m)),n&&n.length?h+=`
           <div class="result-section"><strong>Secondary Technologies</strong></div>
-          ${n.map(w).join(``)}
+          ${n.map(O).join(``)}
       `:n&&(h+=`
           <div class="result-section"><strong>Secondary Technologies</strong></div>
-          ${T()}
-      `),r&&(h+=S(r)),i&&(h+=o(i)),h||=a(),N.innerHTML=h}
+          ${k()}
+      `),r&&(h+=E(r)),i&&(h+=o(i)),h||=a(),L.innerHTML=h}

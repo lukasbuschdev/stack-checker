@@ -1,5 +1,6 @@
+import { calculateSeoScore } from "../../utils/calculations";
+
 export function detectSEO() {
-  const evidence = [];
   const insights = [];
 
   const doc = document;
@@ -25,23 +26,23 @@ export function detectSEO() {
   if (!title) {
     insights.push({
       level: "critical",
-      message: "Missing title tag. Add a concise title between 30-60 characters describing the page content",
+      message: "Missing <title> tag. Search engines rely on it as the primary ranking and click signal. Add a concise, keyword-focused title (30-60 characters).",
       source,
     });
   } else if (title.length < 30) {
     insights.push({
       level: "warning",
-      message: "Title is quite short. Expand it to better describe the page and include relevant keywords",
+      message: "Title is too short. It likely lacks context and keywords. Expand it to clearly describe the page topic and include relevant search terms.",
       source,
     });
   } else if (title.length > 60) {
     insights.push({
       level: "warning",
-      message: "Title may be too long. Keep it within 60 characters to avoid truncation in search results",
+      message: "Title is too long and may be truncated in search results. Keep it under ~60 characters while preserving important keywords.",
       source,
     });
   } else {
-    insights.push({ level: "good", message: "Title length looks good", source });
+    insights.push({ level: "good", message: "Title length is well optimized for search engines and readability.", source });
   }
 
   if (title && h1s.length === 1) {
@@ -55,7 +56,7 @@ export function detectSEO() {
 
       insights.push({
         level: "warning",
-        message: "Title and H1 are not aligned. Consider using similar keywords for better SEO relevance",
+        message: "Title and H1 are not aligned. This weakens topical relevance. Use similar keywords to clearly signal the page topic to search engines.",
         source,
       });
     }
@@ -64,55 +65,55 @@ export function detectSEO() {
   if (!description) {
     insights.push({
       level: "critical",
-      message: "Missing meta description. Add a 70-160 character summary to improve search visibility",
+      message: "Missing meta description. This reduces click-through rate in search results. Add a compelling summary (70–160 characters) with relevant keywords.",
       source,
     });
   } else if (description.length < 70) {
     insights.push({
       level: "warning",
-      message: "Meta description is quite short. Expand it to better summarize the page content",
+      message: "Meta description is too short. It may not provide enough context to attract clicks. Expand it to better summarize the page.",
       source,
     });
   } else if (description.length > 160) {
     insights.push({
       level: "warning",
-      message: "Meta description may be too long. Keep it under 160 characters to prevent truncation",
+      message: "Meta description is too long and may be truncated. Keep it under ~160 characters while keeping it descriptive and engaging.",
       source,
     });
   } else {
-    insights.push({ level: "good", message: "Meta description length looks good", source });
+    insights.push({ level: "good", message: "Meta description length is well optimized for search visibility and click-through rate.", source });
   }
 
   if (h1s.length === 0) {
     insights.push({
       level: "critical",
-      message: "No H1 tag found. Add a main heading that clearly defines the page topic",
+      message: "No H1 found. This is a key structural and SEO signal. Add a single main heading that clearly defines the page topic.",
       source,
     });
   } else if (h1s.length > 1) {
     insights.push({
       level: "warning",
-      message: "Multiple H1 tags detected. Use a single primary heading for better structure",
+      message: "Multiple H1 tags detected. This can confuse search engines. Use one primary H1 and structure the rest with H2-H6.",
       source,
     });
   } else {
-    insights.push({ level: "good", message: "Single H1 tag found", source });
+    insights.push({ level: "good", message: "Single H1 detected. Page structure is clear and SEO-friendly.", source });
   }
 
   if (imagesWithoutAlt.length > 0) {
     insights.push({
       level: "warning",
-      message: `${imagesWithoutAlt.length} images missing alt text. Add descriptive alt attributes for accessibility and SEO`,
+      message: `${imagesWithoutAlt.length} images missing alt text. This reduces accessibility and image SEO. Add descriptive alt attributes explaining the image content.`,
       source,
     });
   } else if (images.length > 0) {
-    insights.push({ level: "good", message: "All images contain alt text", source });
+    insights.push({ level: "good", message: "All images have alt text. This improves accessibility and helps search engines understand visual content.", source });
   }
 
   if (!canonical) {
     insights.push({
       level: "warning",
-      message: "Missing canonical tag. Define a canonical URL to prevent duplicate content issues",
+      message: "Missing canonical URL. This can cause duplicate content issues. Define a canonical link to indicate the preferred version of the page.",
       source,
     });
   }
@@ -120,7 +121,7 @@ export function detectSEO() {
   if (!viewport) {
     insights.push({
       level: "critical",
-      message: "Missing viewport meta tag. Add it to ensure proper mobile rendering",
+      message: "Missing viewport meta tag. This breaks mobile rendering and hurts SEO. Add a responsive viewport configuration.",
       source,
     });
   }
@@ -128,7 +129,7 @@ export function detectSEO() {
   if (ogTags.length === 0) {
     insights.push({
       level: "warning",
-      message: "No Open Graph tags detected. Add og:title, og:description, and og:image for better social sharing",
+      message: "No Open Graph tags detected. Pages may display poorly when shared. Add og:title, og:description, and og:image.",
       source,
     });
   }
@@ -136,7 +137,7 @@ export function detectSEO() {
   if (twitterTags.length === 0) {
     insights.push({
       level: "warning",
-      message: "No Twitter card tags detected. Add twitter metadata for improved sharing on Twitter",
+      message: "No Twitter card metadata detected. Add twitter tags to control how content appears when shared.",
       source,
     });
   }
@@ -144,7 +145,7 @@ export function detectSEO() {
   if (!lang) {
     insights.push({
       level: "warning",
-      message: "Missing HTML lang attribute. Define the page language for accessibility and SEO",
+      message: "Missing HTML lang attribute. This affects accessibility and international SEO. Define the document language.",
       source,
     });
   }
@@ -152,7 +153,7 @@ export function detectSEO() {
   if (robots && robots.includes("noindex")) {
     insights.push({
       level: "critical",
-      message: "Page is set to noindex. Remove it to allow search engines to index this page",
+      message: "Page is set to 'noindex'. Search engines will ignore it. Remove this directive if the page should appear in search results.",
       source,
     });
   }
@@ -160,13 +161,13 @@ export function detectSEO() {
   if (structuredData.length === 0) {
     insights.push({
       level: "warning",
-      message: "No structured data detected. Add schema.org markup to improve rich search results",
+      message: "No structured data detected. Add schema.org markup to enable rich results and improve visibility in search.",
       source,
     });
   } else {
     insights.push({
       level: "good",
-      message: "Structured data detected",
+      message: "Structured data detected. This can enhance search result appearance (rich snippets).",
       source,
     });
   }
@@ -174,7 +175,7 @@ export function detectSEO() {
   if (internalLinks.length < 3) {
     insights.push({
       level: "warning",
-      message: "Few internal links detected. Add internal links to improve site structure and SEO",
+      message: "Few internal links detected. This weakens site structure and crawlability. Add links to related pages.",
       source,
     });
   }
@@ -182,7 +183,15 @@ export function detectSEO() {
   if (externalLinks.length === 0) {
     insights.push({
       level: "warning",
-      message: "No external links detected. Consider linking to relevant external sources",
+      message: "No external links detected. Linking to authoritative sources can improve trust and SEO signals.",
+      source,
+    });
+  }
+
+  if (!title || !description || h1s.length === 0) {
+    insights.push({
+      level: "critical",
+      message: "Core SEO elements missing (title, description, or H1). This significantly limits search visibility.",
       source,
     });
   }
@@ -196,7 +205,11 @@ export function detectSEO() {
     robots,
     structuredDataCount: structuredData.length,
     internalLinksCount: internalLinks.length,
+    externalLinksCount: externalLinks.length,
     hasCanonical: !!canonical,
+    hasOG: ogTags.length > 0,
+    hasTwitter: twitterTags.length > 0,
+    hasLang: !!lang,
     isTitleAligned,
   });
 
@@ -224,33 +237,14 @@ export function detectSEO() {
         robots,
         openGraph: ogTags.length,
         twitter: twitterTags.length,
+        structuredData: structuredData.length,
+      },
+      links: {
+        internal: internalLinks.length,
+        external: externalLinks.length,
       },
     },
 
     insights,
-    evidence,
   };
-}
-
-function calculateSeoScore({ title, description, h1Count, missingAlt, hasViewport, robots, structuredDataCount, internalLinksCount, hasCanonical, isTitleAligned }) {
-  let score = 100;
-
-  if (!title) score -= 25;
-  if (!isTitleAligned) score -= 5;
-  if (!description) score -= 20;
-  if (!hasViewport) score -= 10;
-
-  if (h1Count === 0) {
-    score -= 20;
-  } else if (h1Count > 1) {
-    score -= 10;
-  }
-
-  if (missingAlt > 0) score -= Math.min(15, missingAlt * 2);
-  if (robots?.includes("noindex")) score -= 30;
-  if (!hasCanonical) score -= 5;
-  if (structuredDataCount === 0) score -= 5;
-  if (internalLinksCount < 3) score -= 5;
-
-  return Math.max(0, score);
 }
