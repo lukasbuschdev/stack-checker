@@ -9,6 +9,7 @@ import { renderFullSummary } from "../templates/summary-full";
 import { renderFallback } from "../templates/technology-fallback";
 import { initAutoRefresh } from "../utils/helpers";
 import { processTechnologyData } from "../utils/technology-processing";
+import { renderAccessibility } from "../templates/accessibility";
 
 const container = document.getElementById("dashboard-results");
 const urlParams = new URLSearchParams(window.location.search);
@@ -24,7 +25,7 @@ if (!tabId) {
 }
 
 function renderDashboard(data) {
-  const { primary, secondary, rendering, cdn, performance, seo, summary } = data || {};
+  const { primary, secondary, rendering, cdn, performance, seo, accessibility, summary } = data || {};
   const { categoryInsights } = processTechnologyData(primary || null, secondary || []);
   const loading = performance?.loading || null;
   const interaction = performance?.interaction || null;
@@ -35,6 +36,7 @@ function renderDashboard(data) {
   if (loading) html += renderLoading(loading);
   if (interaction) html += renderInteraction(interaction);
   if (seo && seo.data) html += renderSEO(seo);
+  if (accessibility) html += renderAccessibility(accessibility);
   if (primary) {
     html += renderPrimary(primary, categoryInsights);
   } else {

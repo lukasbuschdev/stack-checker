@@ -1,7 +1,7 @@
 import { getScoreClass } from "../utils/helpers";
 
 export function renderFullSummary(summary) {
-  const { loadingPerformanceScore, interactionPerformanceScore, seoScore, overallScore, topIssues } = summary;
+  const { loadingPerformanceScore, interactionPerformanceScore, seoScore, accessibilityScore, overallScore, topIssues } = summary;
 
   const levelPriority = {
     critical: 2,
@@ -31,8 +31,15 @@ export function renderFullSummary(summary) {
           <span class="info-tooltip">
             ⓘ
             <span class="tooltip-content">
-              Overall score based on weighted metrics.<br><br>
-              Loading (50%), Interaction (30%), SEO (20%)<br><br>
+              Overall score based on weighted metrics.
+              <br><br>
+              <ul>
+                <li>Loading (50%)</li>
+                <li>Interaction (25%)</li>
+                <li>SEO (15%)</li>
+                <li>Accessibility (10%)</li>
+              </ul>
+              <br><br>
               Prioritizes real user experience over technical completeness.
             </span>
           </span>
@@ -69,6 +76,16 @@ export function renderFullSummary(summary) {
           <div class="row gap-5">
             <span class="score ${getScoreClass(seoScore)}">
               ${seoScore ?? "N/A"}
+            </span>
+            <span>/ 100</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="muted">Accessibility</span>
+          <div class="row gap-5">
+            <span class="score ${getScoreClass(accessibilityScore)}">
+              ${accessibilityScore ?? "N/A"}
             </span>
             <span>/ 100</span>
           </div>

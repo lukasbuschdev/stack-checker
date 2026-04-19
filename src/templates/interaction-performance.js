@@ -1,4 +1,4 @@
-import { buildPerformanceInsightGroup } from "../utils/helpers";
+import { buildPerformanceInsightGroup, getScoreClass } from "../utils/helpers";
 
 const thresholds = {
   animatedCount: { warning: 15, critical: 40 },
@@ -37,6 +37,8 @@ export function renderInteraction(interaction) {
     }
   });
 
+  const issueCount = groupedInsights.critical.length + groupedInsights.warning.length;
+
   const insightsItems = `
     ${buildPerformanceInsightGroup("Critical Issues", groupedInsights.critical, "critical")}
     ${buildPerformanceInsightGroup("Warnings", groupedInsights.warning, "warning")}
@@ -46,6 +48,12 @@ export function renderInteraction(interaction) {
   return /*html*/ `
     <div class="result-section"><strong>Interaction Performance</strong></div>
     <div class="result-card column gap-30">
+      <div class="metric-block">
+        <span class="block-title">Overview</span>
+        ${metricRow("Score", interaction.score ?? "N/A", getScoreClass(interaction.score))}
+        ${metricRow("Issues", issueCount, issueCount > 0 ? "warning" : "good")}
+      </div>
+
       <div class="metric-block">
         <span class="block-title">Motion & Complexity</span>
         ${metrics}

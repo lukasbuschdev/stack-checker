@@ -1,19 +1,17 @@
-import { truncateUrl } from "../utils/helpers";
+import { metricRow, truncateUrl, getScoreClass } from "../utils/helpers";
 
 export function renderSEO(seo) {
   const { title, description, canonical, lang, headings, images, meta } = seo.data;
 
-  const groupedInsights = {
-    critical: [],
-    warning: [],
-    good: [],
-  };
+  const groupedInsights = { critical: [], warning: [], good: [] };
 
   (seo.insights || []).forEach((item) => {
     if (groupedInsights[item.level]) {
       groupedInsights[item.level].push(item.message);
     }
   });
+
+  const issueCount = groupedInsights.critical.length + groupedInsights.warning.length;
 
   const insightsItems = `
     ${buildSeoInsightGroup("Critical Issues", groupedInsights.critical, "critical")}
@@ -26,6 +24,12 @@ export function renderSEO(seo) {
   return /*html*/ `
     <div class="result-section"><strong>SEO</strong></div>
     <div class="result-card column gap-30">
+      <div class="metric-block">
+        <span class="block-title">Overview</span>
+        ${metricRow("Score", seo.score ?? "N/A", getScoreClass(seo.score))}
+        ${metricRow("Issues", issueCount, issueCount > 0 ? "warning" : "good")}
+      </div>
+
       <div class="metric-block">
         <span class="block-title">Structure</span>
         ${metricRow("Title", title ? truncateUrl(title, 50) : "missing", title ? "good" : "critical")}
@@ -66,17 +70,6 @@ export function renderSEO(seo) {
         `
           : ""
       }
-    </div>
-  `;
-}
-
-function metricRow(label, value, level = "good") {
-  return /*html*/ `
-    <div class="metric-row">
-      <span>${label}</span>
-      <span class="metric ${level}">
-        ${value}
-      </span>
     </div>
   `;
 }

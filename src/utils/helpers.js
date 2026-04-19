@@ -63,3 +63,14 @@ export function formatType(type) {
       return "Other";
   }
 }
+
+export function metricRow(label, value, level = "good") {
+  return /*html*/ `
+    <div class="metric-row">
+      <span>${label}</span>
+      <span class="metric ${level}">
+        ${value}
+      </span>
+    </div>
+  `;
+}

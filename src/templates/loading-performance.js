@@ -1,4 +1,4 @@
-import { buildPerformanceInsightGroup, truncateUrl } from "../utils/helpers";
+import { buildPerformanceInsightGroup, truncateUrl, getScoreClass } from "../utils/helpers";
 
 export function renderLoading(loading) {
   const { coreWebVitals, bundleAnalysis, renderBlocking } = loading.data;
@@ -25,6 +25,8 @@ export function renderLoading(loading) {
     }
   });
 
+  const issueCount = groupedInsights.critical.length + groupedInsights.warning.length;
+
   const insightsItems = `
     ${buildPerformanceInsightGroup("Critical Issues", groupedInsights.critical, "critical")}
     ${buildPerformanceInsightGroup("Warnings", groupedInsights.warning, "warning")}
@@ -34,6 +36,12 @@ export function renderLoading(loading) {
   return /*html*/ `
     <div class="result-section"><strong>Loading Performance</strong></div>
     <div class="result-card column gap-30">
+      <div class="metric-block">
+        <span class="block-title">Overview</span>
+        ${metricRow("Score", loading.score ?? "N/A", getScoreClass(loading.score))}
+        ${metricRow("Issues", issueCount, issueCount > 0 ? "warning" : "good")}
+      </div>
+
       <div class="metric-block">
         <span class="block-title">Core Web Vitals</span>
         ${lcp}

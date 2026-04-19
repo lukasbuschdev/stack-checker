@@ -135,10 +135,80 @@ export function calculateSeoScore({ title, description, h1Count, missingAlt, has
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
+export function calculateAccessibilityScore(metrics) {
+  let score = 100;
+
+  const { totalElements = 1, totalButtons = 1, totalInputs = 1, hasMain, hasNav, unlabeledButtons, clickableDivs, inputsWithoutLabel, fakeButtons, inaccessibleInteractive, anchorWithoutHref, buttonsMissingType, elementsWithoutFocusStyle } = metrics;
+
+  const WEIGHTS = {
+    critical: 30,
+    warning: 15,
+    info: 5,
+  };
+
+  if (!hasMain && totalElements > 50) {
+    score -= WEIGHTS.warning * 0.5;
+  }
+
+  if (!hasNav && totalElements > 100) {
+    score -= WEIGHTS.info;
+  }
+
+  if (unlabeledButtons > 0) {
+    const ratio = unlabeledButtons / totalButtons;
+    const penalty = WEIGHTS.critical * Math.min(1, ratio);
+    score -= penalty;
+  }
+
+  if (clickableDivs > 0) {
+    const ratio = clickableDivs / totalElements;
+    const penalty = WEIGHTS.warning * Math.min(1, ratio * 5);
+    score -= penalty;
+  }
+
+  if (inputsWithoutLabel > 0) {
+    const ratio = inputsWithoutLabel / totalInputs;
+    const penalty = WEIGHTS.critical * Math.min(1, ratio);
+    score -= penalty;
+  }
+
+  if (fakeButtons > 0) {
+    const ratio = fakeButtons / totalElements;
+    const penalty = WEIGHTS.warning * Math.min(1, ratio * 5);
+    score -= penalty;
+  }
+
+  if (inaccessibleInteractive > 0) {
+    const ratio = inaccessibleInteractive / totalElements;
+    const penalty = WEIGHTS.critical * Math.min(1, ratio * 5);
+    score -= penalty;
+  }
+
+  if (anchorWithoutHref > 0) {
+    const ratio = anchorWithoutHref / totalElements;
+    const penalty = WEIGHTS.warning * Math.min(1, ratio * 5);
+    score -= penalty;
+  }
+
+  if (buttonsMissingType > 0) {
+    const ratio = buttonsMissingType / totalButtons;
+    const penalty = WEIGHTS.warning * Math.min(1, ratio);
+    score -= penalty;
+  }
+
+  if (elementsWithoutFocusStyle > 0) {
+    const ratio = elementsWithoutFocusStyle / totalElements;
+    const penalty = WEIGHTS.warning * Math.min(1, ratio * 5);
+    score -= penalty;
+  }
+
+  return Math.max(0, Math.round(score));
+}
+
 export function calculateOverallScore(scores) {
   if (!scores) return 0;
 
-  const { loading = null, interaction = null, seo = null } = scores;
+  const { loading = null, interaction = null, seo = null, accessibility = null } = scores;
 
   let totalWeight = 0;
   let weightedSum = 0;
@@ -149,13 +219,18 @@ export function calculateOverallScore(scores) {
   }
 
   if (interaction != null) {
-    weightedSum += interaction * 0.3;
-    totalWeight += 0.3;
+    weightedSum += interaction * 0.25;
+    totalWeight += 0.25;
   }
 
   if (seo != null) {
-    weightedSum += seo * 0.2;
-    totalWeight += 0.2;
+    weightedSum += seo * 0.15;
+    totalWeight += 0.15;
+  }
+
+  if (accessibility != null) {
+    weightedSum += accessibility * 0.1;
+    totalWeight += 0.1;
   }
 
   if (totalWeight === 0) return 0;

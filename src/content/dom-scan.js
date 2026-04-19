@@ -8,6 +8,7 @@ export function scanDOM() {
       tagName: el.tagName,
       classList: Array.from(el.classList),
       attributes: Array.from(el.attributes).map((attr) => attr.name),
+      textContent: el.textContent,
 
       computedStyle: {
         animationName: style.animationName,

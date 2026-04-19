@@ -38,6 +38,7 @@ import { detectCDN } from "./cdn/cdn-detector.js";
 import { detectInteractionPerformance } from "./performance/interaction-performance-detector.js";
 import { detectSEO } from "./seo/seo-detector.js";
 import { detectLoadingPerformance } from "./performance/loading-performance-detector.js";
+import { detectAccessibility } from "./accessibility/accessibility-detector.js";
 
 export const DETECTORS = [
   detectAngular,
@@ -83,4 +84,6 @@ export const DETECTORS = [
   detectInteractionPerformance,
 
   detectSEO,
+
+  detectAccessibility,
 ];

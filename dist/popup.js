@@ -1,4 +1,4 @@
-import{a as e,o as t,t as n}from"./assets/technology-fallback-BD919TOv.js";function r(t){let{loadingPerformanceScore:n,interactionPerformanceScore:r,seoScore:a,overallScore:o,topIssues:s,primaryDetected:c}=t,l={critical:0,warning:0};return(s||[]).forEach(e=>{e.level===`critical`&&l.critical++,e.level===`warning`&&l.warning++}),`
+import{a as e,o as t,t as n}from"./assets/technology-fallback-DZ6uqGjN.js";function r(t){let{loadingPerformanceScore:n,interactionPerformanceScore:r,seoScore:a,accessibilityScore:o,overallScore:s,totalIssueCounts:c,primaryDetected:l}=t,u={critical:c?.critical??0,warning:c?.warning??0};return`
     <div class="result-section"><strong>Quick Overview</strong></div>
     <div class="result-card column gap-20 summary">
       <div class="summary-score">
@@ -7,29 +7,37 @@ import{a as e,o as t,t as n}from"./assets/technology-fallback-BD919TOv.js";funct
           <span class="info-tooltip">
             ⓘ
             <span class="tooltip-content">
-              Overall score based on weighted metrics.<br><br>
-              Loading (50%), Interaction (30%), SEO (20%)<br><br>
+              Overall score based on weighted metrics.
+              <br><br>
+              <ul>
+                <li>Loading (50%)</li>
+                <li>Interaction (25%)</li>
+                <li>SEO (15%)</li>
+                <li>Accessibility (10%)</li>
+              </ul>
+              <br><br>
               Prioritizes real user experience over technical completeness.
             </span>
           </span>
         </div>
-        <span class="score ${e(o)}">
-          ${o??`N/A`}
+        <span class="score ${e(s)}">
+          ${s??`N/A`}
         </span>
       </div>
 
       <div class="summary-mini row gap-10">
-        ${i(`Load`,n)}
+        ${i(`Loading`,n)}
         ${i(`UX`,r)}
         ${i(`SEO`,a)}
+        ${i(`Accessibility`,o)}
       </div>
 
       <div class="insights column gap-10">
         <span class="block-title mt-15"><strong>Analysis</strong></span>
         <div class="summary-status column gap-5">
-          ${l.critical>0?`<span class="critical">${l.critical} critical issue${l.critical>1?`s`:``}</span>`:`<span class="good">✓ No critical issues</span>`}
-          ${l.warning>0?`<span class="warning">${l.warning} warning${l.warning>1?`s`:``}</span>`:`<span class="good">No warnings</span>`}
-          ${c?`<span class="good">Primary technology detected</span>`:`<span class="warning">No primary technology detected</span>`}
+          ${u.critical>0?`<span class="critical">${u.critical} critical issue${u.critical>1?`s`:``}</span>`:`<span class="good">✓ No critical issues</span>`}
+          ${u.warning>0?`<span class="warning">${u.warning} warning${u.warning>1?`s`:``}</span>`:`<span class="good">No warnings</span>`}
+          ${l?`<span class="good">Primary technology detected</span>`:`<span class="warning">No primary technology detected</span>`}
         </div>
       </div>
 

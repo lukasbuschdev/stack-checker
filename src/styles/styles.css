@@ -329,7 +329,7 @@ body.popup #results .result-card {
 
 .tooltip-content {
   position: absolute;
-  bottom: -170px;
+  bottom: -275px;
   left: 50%;
   transform: translateX(-50%);
   width: 220px;
@@ -343,6 +343,10 @@ body.popup #results .result-card {
   pointer-events: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   z-index: 10;
+}
+
+.tooltip-content ul li {
+  font-size: 0.8rem !important;
 }
 
 .info-tooltip:hover .tooltip-content {

@@ -1,17 +1,12 @@
 import { getScoreClass } from "../utils/helpers";
 
 export function renderSummary(summary) {
-  const { loadingPerformanceScore, interactionPerformanceScore, seoScore, overallScore, topIssues, primaryDetected } = summary;
+  const { loadingPerformanceScore, interactionPerformanceScore, seoScore, accessibilityScore, overallScore, totalIssueCounts, primaryDetected } = summary;
 
   const counts = {
-    critical: 0,
-    warning: 0,
+    critical: totalIssueCounts?.critical ?? 0,
+    warning: totalIssueCounts?.warning ?? 0,
   };
-
-  (topIssues || []).forEach((issue) => {
-    if (issue.level === "critical") counts.critical++;
-    if (issue.level === "warning") counts.warning++;
-  });
 
   return /*html*/ `
     <div class="result-section"><strong>Quick Overview</strong></div>
@@ -22,8 +17,15 @@ export function renderSummary(summary) {
           <span class="info-tooltip">
             ⓘ
             <span class="tooltip-content">
-              Overall score based on weighted metrics.<br><br>
-              Loading (50%), Interaction (30%), SEO (20%)<br><br>
+              Overall score based on weighted metrics.
+              <br><br>
+              <ul>
+                <li>Loading (50%)</li>
+                <li>Interaction (25%)</li>
+                <li>SEO (15%)</li>
+                <li>Accessibility (10%)</li>
+              </ul>
+              <br><br>
               Prioritizes real user experience over technical completeness.
             </span>
           </span>
@@ -34,9 +36,10 @@ export function renderSummary(summary) {
       </div>
 
       <div class="summary-mini row gap-10">
-        ${miniMetric("Load", loadingPerformanceScore)}
+        ${miniMetric("Loading", loadingPerformanceScore)}
         ${miniMetric("UX", interactionPerformanceScore)}
         ${miniMetric("SEO", seoScore)}
+        ${miniMetric("Accessibility", accessibilityScore)}
       </div>
 
       <div class="insights column gap-10">
