@@ -160,6 +160,11 @@ async function detectJsAnimationActivity() {
   let styleChanges = 0;
   let svgMotionChanges = 0;
 
+  const motionTargets = Array.from(document.querySelectorAll("svg *")).map((el) => ({
+    el,
+    last: readMotionSignature(el),
+  }));
+
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       if (mutation.type !== "attributes") continue;
@@ -182,12 +187,49 @@ async function detectJsAnimationActivity() {
     attributeFilter: ["style", "class", "transform", "cx", "cy", "x", "y", "x1", "y1", "x2", "y2", "d"],
   });
 
-  await new Promise((resolve) => setTimeout(resolve, 1200));
+  let animatedImageCount = 0;
+  let canvasAnimationDetected = false;
+
+  const images = Array.from(document.querySelectorAll("img"));
+  for (const img of images) {
+    const src = img.currentSrc || img.src || "";
+
+    if (src.includes(".gif") || src.includes(".webp") || src.includes(".apng")) {
+      animatedImageCount++;
+    }
+  }
+
+  const canvasElements = document.querySelectorAll("canvas");
+  const start = performance.now();
+
+  await new Promise((resolve) => {
+    function tick() {
+      for (const target of motionTargets) {
+        const next = readMotionSignature(target.el);
+
+        if (next !== target.last) {
+          svgMotionChanges++;
+          target.last = next;
+        }
+      }
+
+      if (canvasElements.length > 0 && window.__rafActivity > 100) {
+        canvasAnimationDetected = true;
+      }
+
+      if (performance.now() - start >= 1200) {
+        resolve();
+        return;
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
 
   observer.disconnect();
 
   const totalChanges = styleChanges + svgMotionChanges;
-  const detected = totalChanges > 0;
+  const detected = totalChanges > 0 || animatedImageCount > 0 || canvasAnimationDetected;
   const level = svgMotionChanges > 40 || totalChanges > 80 ? "high" : svgMotionChanges > 5 || totalChanges > 15 ? "medium" : detected ? "low" : "none";
 
   return {
@@ -196,7 +238,26 @@ async function detectJsAnimationActivity() {
     styleChanges,
     svgMotionChanges,
     totalChanges,
+    animatedImageCount,
+    canvasAnimationDetected,
   };
+}
+
+function readMotionSignature(el) {
+  return [
+    el.getAttribute("cx") || "",
+    el.getAttribute("cy") || "",
+    el.getAttribute("x") || "",
+    el.getAttribute("y") || "",
+    el.getAttribute("x1") || "",
+    el.getAttribute("y1") || "",
+    el.getAttribute("x2") || "",
+    el.getAttribute("y2") || "",
+    el.getAttribute("d") || "",
+    el.getAttribute("transform") || "",
+    el.getBoundingClientRect().left.toFixed(2),
+    el.getBoundingClientRect().top.toFixed(2),
+  ].join("|");
 }
 
 export function getInsights(data) {
@@ -319,9 +380,19 @@ export function getInsights(data) {
   }
 
   if (jsAnimationActivity?.detected) {
+    let message = "JavaScript-driven animation activity detected.";
+
+    if (jsAnimationActivity.svgMotionChanges > 0) {
+      message = "SVG animation detected (attribute or positional updates).";
+    } else if (jsAnimationActivity.canvasAnimationDetected) {
+      message = "Canvas-based animation detected. Frequent redraws can impact performance.";
+    } else if (jsAnimationActivity.animatedImageCount > 0) {
+      message = `${jsAnimationActivity.animatedImageCount} potentially animated image(s) detected (GIF/WebP/APNG).`;
+    }
+
     evidence.push({
       type: jsAnimationActivity.level === "high" ? "medium" : "weak",
-      message: `JavaScript-driven animation activity detected. Runtime updates may add extra rendering work outside normal CSS animations.`,
+      message,
       fix: "Throttle frequent updates and prefer CSS-based animation where possible.",
     });
   }

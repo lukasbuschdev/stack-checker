@@ -7,7 +7,6 @@ import { renderSecondary, renderSecondaryFallback } from "../templates/secondary
 import { renderSEO } from "../templates/seo";
 import { renderFullSummary } from "../templates/summary-full";
 import { renderFallback } from "../templates/technology-fallback";
-import { initAutoRefresh } from "../utils/helpers";
 import { processTechnologyData } from "../utils/technology-processing";
 import { renderAccessibility } from "../templates/accessibility";
 
@@ -15,13 +14,54 @@ const container = document.getElementById("dashboard-results");
 const urlParams = new URLSearchParams(window.location.search);
 const tabId = urlParams.get("tabId");
 
+const MAX_WAIT_MS = 7000;
+const POLL_INTERVAL_MS = 250;
+
 if (!tabId) {
   container.innerHTML = "<span>No data available</span>";
 } else {
-  chrome.storage.local.get(`stackResults_${tabId}`, (data) => {
-    renderDashboard(data[`stackResults_${tabId}`] || {});
-    initAutoRefresh(tabId, renderDashboard);
+  initDashboard();
+}
+
+async function initDashboard() {
+  renderLoadingState();
+  const finalData = await waitForFinalResults(tabId);
+  renderDashboard(finalData || {});
+}
+
+function waitForFinalResults(tabId) {
+  return new Promise((resolve) => {
+    const storageKey = `stackResults_${tabId}`;
+    const startedAt = Date.now();
+    let latestData = null;
+
+    const intervalId = setInterval(() => {
+      chrome.storage.local.get(storageKey, (data) => {
+        const result = data[storageKey];
+
+        if (result) {
+          latestData = result;
+        }
+
+        const isFinal = result?.meta?.isFinal === true;
+        const timedOut = Date.now() - startedAt >= MAX_WAIT_MS;
+
+        if (isFinal || timedOut) {
+          clearInterval(intervalId);
+          resolve(latestData);
+        }
+      });
+    }, POLL_INTERVAL_MS);
   });
+}
+
+function renderLoadingState() {
+  container.innerHTML = /*html*/ `
+    <div class="result-section loading-state">
+      <div class="loading-title">Analyzing page...</div>
+      <div class="loading-text">Waiting for stable results</div>
+    </div>
+  `;
 }
 
 function renderDashboard(data) {
@@ -37,6 +77,7 @@ function renderDashboard(data) {
   if (interaction) html += renderInteraction(interaction);
   if (seo && seo.data) html += renderSEO(seo);
   if (accessibility) html += renderAccessibility(accessibility);
+
   if (primary) {
     html += renderPrimary(primary, categoryInsights);
   } else {
@@ -45,14 +86,14 @@ function renderDashboard(data) {
 
   if (secondary && secondary.length) {
     html += /*html*/ `
-          <div class="result-section"><strong>Secondary Technologies</strong></div>
-          ${secondary.map(renderSecondary).join("")}
-      `;
+      <div class="result-section"><strong>Secondary Technologies</strong></div>
+      ${secondary.map(renderSecondary).join("")}
+    `;
   } else if (secondary) {
     html += /*html*/ `
-          <div class="result-section"><strong>Secondary Technologies</strong></div>
-          ${renderSecondaryFallback()}
-      `;
+      <div class="result-section"><strong>Secondary Technologies</strong></div>
+      ${renderSecondaryFallback()}
+    `;
   }
 
   if (rendering) {

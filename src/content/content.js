@@ -14,7 +14,55 @@ const priority = {
   other: 0,
 };
 
-async function runDetection() {
+const SAMPLE_COUNT = 3;
+const INITIAL_SETTLE_MS = 1500;
+const BETWEEN_SAMPLE_MS = 700;
+
+runDetectionSequence();
+
+async function runDetectionSequence() {
+  const tabId = await getTabId();
+
+  await waitForDocumentComplete();
+  await waitForDomStable(1200, 5000);
+  await delay(300);
+
+  const snapshots = [];
+
+  for (let i = 0; i < SAMPLE_COUNT; i++) {
+    const snapshot = await collectSnapshot(tabId);
+    snapshots.push(snapshot);
+
+    if (i < SAMPLE_COUNT - 1) {
+      await delay(BETWEEN_SAMPLE_MS);
+      await waitForDomQuiet(600, 2500);
+    }
+  }
+
+  const finalSnapshot = chooseFinalSnapshot(snapshots);
+
+  const summary = buildSummary(finalSnapshot.performance?.loading || null, finalSnapshot.performance?.interaction || null, finalSnapshot.seo || null, finalSnapshot.accessibility || null);
+
+  sendResults(
+    finalSnapshot.primary,
+    finalSnapshot.secondary,
+    finalSnapshot.rendering,
+    finalSnapshot.cdn,
+    finalSnapshot.performance?.loading || null,
+    finalSnapshot.performance?.interaction || null,
+    finalSnapshot.seo || null,
+    finalSnapshot.accessibility || null,
+    summary,
+    finalSnapshot.fallback,
+    {
+      isFinal: true,
+      sampleCount: SAMPLE_COUNT,
+      finalizedAt: Date.now(),
+    },
+  );
+}
+
+async function collectSnapshot(tabId) {
   const pageData = {
     dom: scanDOM(),
     scripts: scanScripts(),
@@ -69,6 +117,7 @@ async function runDetection() {
   });
 
   const stackResults = finalResults.filter((r) => r.type !== "rendering" && r.type !== "infrastructure" && r.type !== "loading-performance" && r.type !== "interaction-performance" && r.type !== "seo" && r.type !== "accessibility");
+
   const detected = stackResults.filter((r) => r.detected === true);
 
   const primary =
@@ -99,45 +148,135 @@ async function runDetection() {
     };
   }
 
-  chrome.runtime.sendMessage({ type: "GET_TAB_ID" }, (response) => {
-    const tabId = response?.tabId;
+  if (tabId && cdnResult) {
+    const headerCDN = await getHeaderCDN(tabId);
 
-    if (!tabId) {
-      const summary = buildSummary(loadingPerformanceResult, interactionPerformanceResult, seoResult, accessibilityResult);
-
-      sendResults(primary, secondary, renderingResult, cdnResult, loadingPerformanceResult, interactionPerformanceResult, seoResult, accessibilityResult, summary, fallback);
-      return;
+    if (headerCDN) {
+      cdnResult = {
+        ...cdnResult,
+        edge: headerCDN.edge,
+        confidence: headerCDN.confidence,
+        source: "headers",
+        evidence: [
+          ...(cdnResult.evidence || []),
+          {
+            type: "strong",
+            message: `${headerCDN.edge} detected via response headers`,
+          },
+        ],
+      };
     }
+  }
 
-    chrome.storage.local.get([`cdnHeaders_${tabId}`], (data) => {
-      const headerCDN = data[`cdnHeaders_${tabId}`];
-
-      const finalInteractionResult = interactionPerformanceResult;
-
-      if (headerCDN && cdnResult) {
-        cdnResult.edge = headerCDN.edge;
-        cdnResult.confidence = headerCDN.confidence;
-        cdnResult.source = "headers";
-
-        cdnResult.evidence.push({
-          type: "strong",
-          message: `${headerCDN.edge} detected via response headers`,
-        });
-      }
-
-      const summary = buildSummary(loadingPerformanceResult, finalInteractionResult, seoResult, accessibilityResult);
-
-      sendResults(primary, secondary, renderingResult, cdnResult, loadingPerformanceResult, finalInteractionResult, seoResult, accessibilityResult, summary, fallback);
-    });
-  });
+  return {
+    primary,
+    secondary: primary ? secondary : [],
+    rendering: renderingResult,
+    cdn: cdnResult,
+    performance: {
+      loading: loadingPerformanceResult,
+      interaction: interactionPerformanceResult,
+    },
+    seo: seoResult,
+    accessibility: accessibilityResult,
+    fallback,
+  };
 }
 
-function sendResults(primary, secondary, renderingResult, cdnResult, loadingPerformanceResult, interactionPerformanceResult, seoResult, accessibilityResult, summary, fallback) {
+function chooseFinalSnapshot(snapshots) {
+  const latest = snapshots[snapshots.length - 1];
+
+  return {
+    ...latest,
+    performance: {
+      loading: latest.performance?.loading || null,
+      interaction: chooseStableInteractionResult(snapshots.map((s) => s.performance?.interaction).filter(Boolean)),
+    },
+    seo: chooseStableSeoResult(snapshots.map((s) => s.seo).filter(Boolean)),
+    accessibility: latest.accessibility || null,
+  };
+}
+
+function chooseStableSeoResult(results) {
+  if (!results.length) return null;
+
+  return results.reduce((best, current) => {
+    if (!best) return current;
+    if (!current) return best;
+
+    const bestInternal = best?.data?.links?.internal ?? 0;
+    const currentInternal = current?.data?.links?.internal ?? 0;
+
+    if (currentInternal !== bestInternal) {
+      return currentInternal > bestInternal ? current : best;
+    }
+
+    const bestImages = best?.data?.images?.total ?? 0;
+    const currentImages = current?.data?.images?.total ?? 0;
+
+    if (currentImages !== bestImages) {
+      return currentImages > bestImages ? current : best;
+    }
+
+    const bestScore = best?.score ?? 0;
+    const currentScore = current?.score ?? 0;
+
+    return currentScore > bestScore ? current : best;
+  }, null);
+}
+
+function chooseStableInteractionResult(results) {
+  if (!results.length) return null;
+
+  return results.reduce((best, current) => {
+    if (!best) return current;
+    if (!current) return best;
+
+    const bestJsRank = getJsActivityRank(best?.data?.jsAnimationActivity?.level);
+    const currentJsRank = getJsActivityRank(current?.data?.jsAnimationActivity?.level);
+
+    if (currentJsRank !== bestJsRank) {
+      return currentJsRank > bestJsRank ? current : best;
+    }
+
+    const bestLayout = best?.data?.layoutAnimationCount ?? 0;
+    const currentLayout = current?.data?.layoutAnimationCount ?? 0;
+
+    if (currentLayout !== bestLayout) {
+      return currentLayout > bestLayout ? current : best;
+    }
+
+    const bestHeavy = best?.data?.heavyInteractionCount ?? 0;
+    const currentHeavy = current?.data?.heavyInteractionCount ?? 0;
+
+    if (currentHeavy !== bestHeavy) {
+      return currentHeavy > bestHeavy ? current : best;
+    }
+
+    const bestAnimated = best?.data?.animatedCount ?? 0;
+    const currentAnimated = current?.data?.animatedCount ?? 0;
+
+    if (currentAnimated !== bestAnimated) {
+      return currentAnimated > bestAnimated ? current : best;
+    }
+
+    const bestScore = best?.score ?? 100;
+    const currentScore = current?.score ?? 100;
+
+    if (currentScore !== bestScore) {
+      return currentScore < bestScore ? current : best;
+    }
+
+    return current;
+  }, null);
+}
+
+function sendResults(primary, secondary, renderingResult, cdnResult, loadingPerformanceResult, interactionPerformanceResult, seoResult, accessibilityResult, summary, fallback, meta = {}) {
   chrome.runtime.sendMessage({
     type: "STORE_STACK_RESULTS",
     data: {
-      primary: primary,
-      secondary: primary ? secondary : [],
+      primary,
+      secondary,
       rendering: renderingResult,
       cdn: cdnResult,
       performance: {
@@ -146,8 +285,9 @@ function sendResults(primary, secondary, renderingResult, cdnResult, loadingPerf
       },
       seo: seoResult,
       accessibility: accessibilityResult,
-      summary: summary,
-      fallback: fallback,
+      summary,
+      fallback,
+      meta,
     },
   });
 }
@@ -263,38 +403,6 @@ function buildSummary(loadingPerformanceResult, interactionPerformanceResult, se
   };
 }
 
-function pickMoreReliableInteractionResult(previousResult, nextResult) {
-  if (!previousResult) return nextResult;
-  if (!nextResult) return previousResult;
-
-  const previousJsRank = getJsActivityRank(previousResult?.data?.jsAnimationActivity?.level);
-  const nextJsRank = getJsActivityRank(nextResult?.data?.jsAnimationActivity?.level);
-
-  if (previousJsRank > nextJsRank) {
-    return previousResult;
-  }
-
-  if (nextJsRank > previousJsRank) {
-    return nextResult;
-  }
-
-  const previousInteractionCount = previousResult?.data?.interactionAnimationCount ?? 0;
-  const nextInteractionCount = nextResult?.data?.interactionAnimationCount ?? 0;
-
-  if (previousInteractionCount > nextInteractionCount) {
-    return previousResult;
-  }
-
-  if (nextInteractionCount > previousInteractionCount) {
-    return nextResult;
-  }
-
-  const previousAnimatedCount = previousResult?.data?.animatedCount ?? 0;
-  const nextAnimatedCount = nextResult?.data?.animatedCount ?? 0;
-
-  return previousAnimatedCount >= nextAnimatedCount ? previousResult : nextResult;
-}
-
 function getJsActivityRank(level) {
   if (level === "high") return 3;
   if (level === "medium") return 2;
@@ -302,5 +410,90 @@ function getJsActivityRank(level) {
   return 0;
 }
 
-runDetection();
-setTimeout(runDetection, 2000);
+function waitForDocumentComplete() {
+  if (document.readyState === "complete") {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    window.addEventListener("load", resolve, { once: true });
+  });
+}
+
+function waitForDomQuiet(quietMs = 1000, timeoutMs = 4000) {
+  return new Promise((resolve) => {
+    let quietTimer = null;
+    let done = false;
+
+    const finish = () => {
+      if (done) return;
+      done = true;
+      observer.disconnect();
+      clearTimeout(quietTimer);
+      clearTimeout(forceTimer);
+      resolve();
+    };
+
+    const observer = new MutationObserver(() => {
+      clearTimeout(quietTimer);
+      quietTimer = setTimeout(finish, quietMs);
+    });
+
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
+
+    quietTimer = setTimeout(finish, quietMs);
+    const forceTimer = setTimeout(finish, timeoutMs);
+  });
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getTabId() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ type: "GET_TAB_ID" }, (response) => {
+      resolve(response?.tabId || null);
+    });
+  });
+}
+
+function getHeaderCDN(tabId) {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([`cdnHeaders_${tabId}`], (data) => {
+      resolve(data[`cdnHeaders_${tabId}`] || null);
+    });
+  });
+}
+
+function waitForDomStable(stableMs = 1200, timeoutMs = 5000) {
+  return new Promise((resolve) => {
+    let timer;
+    let done = false;
+
+    const finish = () => {
+      if (done) return;
+      done = true;
+      observer.disconnect();
+      clearTimeout(timer);
+      clearTimeout(forceTimer);
+      resolve();
+    };
+
+    const observer = new MutationObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(finish, stableMs);
+    });
+
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
+
+    timer = setTimeout(finish, stableMs);
+    const forceTimer = setTimeout(finish, timeoutMs);
+  });
+}

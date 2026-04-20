@@ -1,4 +1,4 @@
-import{a as e,o as t,t as n}from"./assets/technology-fallback-C3INLPKq.js";function r(t){let{loadingPerformanceScore:n,interactionPerformanceScore:r,seoScore:a,accessibilityScore:o,overallScore:s,totalIssueCounts:c,primaryDetected:l}=t,u={critical:c?.critical??0,warning:c?.warning??0};return`
+import{a as e,t}from"./assets/technology-fallback-CL1HTQJv.js";function n(t){let{loadingPerformanceScore:n,interactionPerformanceScore:i,seoScore:a,accessibilityScore:o,overallScore:s,totalIssueCounts:c,primaryDetected:l}=t,u={critical:c?.critical??0,warning:c?.warning??0};return`
     <div class="result-section"><strong>Quick Overview</strong></div>
     <div class="result-card column gap-20 summary">
       <div class="summary-score">
@@ -26,10 +26,10 @@ import{a as e,o as t,t as n}from"./assets/technology-fallback-C3INLPKq.js";funct
       </div>
 
       <div class="summary-mini row gap-10">
-        ${i(`Loading`,n)}
-        ${i(`UX`,r)}
-        ${i(`SEO`,a)}
-        ${i(`Accessibility`,o)}
+        ${r(`Loading`,n)}
+        ${r(`UX`,i)}
+        ${r(`SEO`,a)}
+        ${r(`Accessibility`,o)}
       </div>
 
       <div class="insights column gap-10">
@@ -45,11 +45,16 @@ import{a as e,o as t,t as n}from"./assets/technology-fallback-C3INLPKq.js";funct
         <span class="muted">View full analysis →</span>
       </div>
     </div>
-  `}function i(t,n){return`
+  `}function r(t,n){return`
     <div class="mini-metric column gap-10">
       <span class="muted">${t}</span>
       <span class="score ${e(n)}">
         ${n??`N/A`}
       </span>
     </div>
-  `}var a=document.getElementById(`results`);chrome.tabs.query({active:!0,currentWindow:!0},e=>{let n=e[0];if(!n?.id){o({});return}chrome.storage.local.get(`stackResults_${n.id}`,e=>{o(e[`stackResults_${n.id}`]||{}),t(n.id,o)})});function o(e){let{summary:t}=e||{},i={...t,primaryDetected:!!e.primary},o=``;t&&(o+=r(i)),o||=n(),a.innerHTML=o,s()}function s(){let e=document.getElementById(`open-dashboard-btn`);e&&e.addEventListener(`click`,()=>{chrome.tabs.query({active:!0,currentWindow:!0},e=>{let t=e[0];t?.id&&chrome.tabs.create({url:chrome.runtime.getURL(`src/dashboard/dashboard.html?tabId=${t.id}`)})})})}
+  `}var i=document.getElementById(`results`),a=7e3,o=250;s();function s(){l(),chrome.tabs.query({active:!0,currentWindow:!0},async e=>{let t=e[0];if(!t?.id){u({});return}u(await c(t.id)||{})})}function c(e){return new Promise(t=>{let n=`stackResults_${e}`,r=Date.now(),i=null,s=setInterval(()=>{chrome.storage.local.get(n,e=>{let o=e[n];o&&(i=o);let c=o?.meta?.isFinal===!0,l=Date.now()-r>=a;(c||l)&&(clearInterval(s),t(i))})},o)})}function l(){i.innerHTML=`
+    <div class="result-section loading-state">
+      <div class="loading-title">Analyzing page...</div>
+      <div class="loading-text">Waiting for stable results</div>
+    </div>
+  `}function u(e){let{summary:r}=e||{},a={...r,primaryDetected:!!e.primary},o=``;r&&(o+=n(a)),o||=t(),i.innerHTML=o,d()}function d(){let e=document.getElementById(`open-dashboard-btn`);e&&e.addEventListener(`click`,()=>{chrome.tabs.query({active:!0,currentWindow:!0},e=>{let t=e[0];t?.id&&chrome.tabs.create({url:chrome.runtime.getURL(`src/dashboard/dashboard.html?tabId=${t.id}`)})})})}
