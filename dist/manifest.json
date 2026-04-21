@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Quick Web Inspector",
   "version": "1.0.0",
-  "description": "Get instant insights into any website's performance, SEO, and tech stack in one click.",
+  "description": "Get instant insights into any website's performance, SEO, accessibility, and tech stack in one click.",
 
   "action": {
     "default_popup": "src/popup/popup.html"
