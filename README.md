@@ -2,7 +2,7 @@
 
 A lightweight Chrome extension for analyzing modern websites in real time.
 
-Quick Web Inspector helps developers quickly understand how a website is built, how it performs, and where it can be improved — all directly inside the browser.
+Quick Web Inspector helps developers understand how a website is built, how it performs, and how to improve it by turning analysis into actionable fix recommendations directly inside the browser.
 
 ---
 
