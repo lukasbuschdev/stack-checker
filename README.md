@@ -29,6 +29,7 @@ Get actionable insights instead of raw metrics:
 - JavaScript and CSS impact
 - Image weight and optimization hints
 - Blocking resources detection
+- and more
 
 ---
 
@@ -40,6 +41,7 @@ Go beyond traditional tools by analyzing UI complexity:
 - Visual effects (shadows, filters, gradients)
 - DOM complexity
 - Visual complexity scoring
+- and more
 
 ---
 
@@ -69,15 +71,23 @@ Detect modern web technologies with confidence scoring:
 
 ---
 
-## Installation (Manual)
+## Installation
 
-The extension is currently available for manual installation while still in google's review process.
+### Chrome Web Store (Recommended)
 
-### Steps:
+Install the extension directly from the Chrome Web Store:
+
+[Install Quick Web Inspector](https://chromewebstore.google.com/detail/quick-web-inspector/blafbiafijpiijkblkgflddhjejienme)
+
+---
+
+### Manual Installation (Development)
+
+If you want to run the extension locally for development or testing:
 
 1. Download the project as a ZIP file
 2. Extract the ZIP
-3. Open Chrome and go to: *chrome://extensions/*
+3. Open Chrome and go to: `chrome://extensions/`
 4. Enable **Developer Mode**
 5. Click **Load unpacked**
 6. Select the `dist` folder
