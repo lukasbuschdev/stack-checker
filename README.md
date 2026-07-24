@@ -134,16 +134,7 @@ Both tools complement each other.
 
 ---
 
-## Status
-
-The extension is currently under review for the Chrome Web Store.
-
-Once approved, it will be available as a one-click install.
-
----
-
 ## Author
 
 Developed by Lukas Busch  
-Frontend Developer focused on performance, architecture, and modern web technologies
-
+Software Engineer 
